@@ -65,7 +65,8 @@ const PROFILE_BY_ROLE: ReadonlyArray<[Role, NavProfile]> = [
 ];
 
 export interface Navigation {
-  profile: NavProfile;
+  /** `none` — konto bez ról: bez nawigacji, tylko ekran „Konto nie ma przypisanej roli…”. */
+  profile: NavProfile | "none";
   bottomNav: NavItem[];
   /** Pozycje Menu zależne od roli (dochodzą do stałych pozycji Menu). */
   menu: NavItem[];
@@ -77,10 +78,12 @@ export interface Navigation {
  */
 export function navigationFor(roles: readonly Role[]): Navigation {
   const held = new Set(roles);
+  if (held.size === 0) return { profile: "none", bottomNav: [], menu: [] };
+
   const isAdmin = held.has("ADMIN");
   const ranked = PROFILE_BY_ROLE.find(([role]) => held.has(role))?.[1];
-  // Sam ADMIN dostaje pasek kierownika/zarządu; bez żadnej roli — najwęższy.
-  const profile = ranked ?? (isAdmin ? "management" : "worker");
+  // Tu zostaje tylko ADMIN — dostaje pasek kierownika/zarządu.
+  const profile = ranked ?? "management";
 
   return {
     profile,

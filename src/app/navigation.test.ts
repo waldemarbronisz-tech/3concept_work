@@ -60,6 +60,10 @@ describe("navigationFor", () => {
     });
   });
 
+  it("[] → brak nawigacji (profil none)", () => {
+    expect(labels([])).toEqual({ profile: "none", bottomNav: [], menu: [] });
+  });
+
   it("ADMIN nie zmienia paska innej roli", () => {
     expect(labels(["WORKER", "ADMIN"])).toMatchObject({
       profile: "worker",
@@ -72,7 +76,6 @@ describe("navigationFor", () => {
     [["SITE_ENGINEER", "FOREMAN"], "engineer"],
     [["WORKER", "FOREMAN"], "foreman"],
     [["WORKER", "MANAGEMENT"], "management"],
-    [[], "worker"],
   ])("%j → %s (kolejność ról bez znaczenia)", (roles, profile) => {
     expect(navigationFor(roles).profile).toBe(profile);
   });

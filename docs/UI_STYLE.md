@@ -122,7 +122,8 @@ Profil wybiera najwyższa rola systemowa, w kolejności
 `MANAGEMENT`, `CONTRACT_MANAGER` (obie → kierownik/zarząd), `SITE_ENGINEER`, `FOREMAN`, `WORKER`.
 `ADMIN` nie zmienia paska, tylko dodaje „Administracja” w Menu (sam `ADMIN` → kierownik/zarząd).
 Funkcja na budowie (przypisanie do zespołu) nie wpływa na pasek. Pozycja bez gotowego ekranu
-prowadzi do zaślepki „Sekcja w przygotowaniu (Mx)”, nigdy do 404.
+prowadzi do zaślepki „Sekcja w przygotowaniu (Mx)”, nigdy do 404. Konto bez ról nie ma paska
+(profil `none`) — widzi tylko ekran „Konto nie ma przypisanej roli. Skontaktuj się z administratorem.”
 
 **Desktop:** tło `paper` z siatką → arkusz (`surface`, ramka `ink`) → `SheetHeader`
 → `AlarmBar` (jeśli są problemy) → pasek narzędzi (filtry + akcja główna)
