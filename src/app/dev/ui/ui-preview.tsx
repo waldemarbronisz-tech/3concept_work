@@ -1,7 +1,7 @@
 "use client";
 
-import { Clock, House, Inbox, Menu } from "lucide-react";
 import { useState } from "react";
+import { BOTTOM_NAV, NAV_PROFILE_LABEL, type NavProfile } from "@/app/navigation";
 import { AlarmBar } from "@/components/ui/AlarmBar";
 import { AppBar } from "@/components/ui/AppBar";
 import { BottomNav } from "@/components/ui/BottomNav";
@@ -12,7 +12,11 @@ import { OptionAction, OptionCard } from "@/components/ui/OptionCard";
 import { RbhBar } from "@/components/ui/RbhBar";
 import { SheetHeader } from "@/components/ui/SheetHeader";
 import { Status } from "@/components/ui/Status";
-import { packageStatusView, type WorkPackageStatus } from "@/components/ui/package-status";
+import {
+  packageStatusView,
+  type PackageStatusContext,
+  type WorkPackageStatus,
+} from "@/components/ui/package-status";
 import { Stepper } from "@/components/ui/Stepper";
 import { Tag } from "@/components/ui/Tag";
 import { TextField } from "@/components/ui/TextField";
@@ -74,7 +78,8 @@ const PACKAGES: PreviewPackage[] = [
 /** Pakiety, na których pracownik był ostatnio — do szybkiego wyboru. */
 const MY_PACKAGES = ["KAB-01", "OBW-03"].flatMap((code) => PACKAGES.filter((p) => p.code === code));
 
-const viewOf = (p: PreviewPackage) => packageStatusView(p.status, { overPlan: p.actual > p.plan });
+const viewOf = (p: PreviewPackage) =>
+  packageStatusView(p.status, { actualHours: p.actual, plannedHours: p.plan });
 
 const COLUMNS: DataTableColumn<PreviewPackage>[] = [
   {
@@ -126,8 +131,6 @@ const DAYS = [
   { label: "Dziś", date: "29.09" },
 ];
 
-const NAV_ICON = { size: 24, strokeWidth: 1.8, "aria-hidden": true } as const;
-
 function Caption({ children }: { children: string }) {
   return (
     <p className="mb-2 font-mono text-[11px] font-semibold tracking-[.12em] text-ink-2 uppercase">
@@ -144,7 +147,7 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-function PhoneTimeEntry() {
+function PhoneTimeEntry({ profile }: { profile: NavProfile }) {
   const [day, setDay] = useState("29.09");
   const [hours, setHours] = useState(8);
   const [pkg, setPkg] = useState("KAB-01");
@@ -239,14 +242,7 @@ function PhoneTimeEntry() {
         </p>
       </div>
 
-      <BottomNav
-        items={[
-          { href: "#kolejka", label: "Kolejka", icon: <Inbox {...NAV_ICON} /> },
-          { href: "#czas", label: "Czas", icon: <Clock {...NAV_ICON} />, current: true },
-          { href: "#budowy", label: "Budowy", icon: <House {...NAV_ICON} /> },
-          { href: "#menu", label: "Menu", icon: <Menu {...NAV_ICON} /> },
-        ]}
-      />
+      <BottomNav items={BOTTOM_NAV[profile]} currentHref="/czas" />
     </div>
   );
 }
@@ -309,18 +305,22 @@ function DesktopPackages() {
   );
 }
 
-function ComponentSampler() {
-  const statuses: WorkPackageStatus[] = [
-    "PLANNED",
-    "READY",
-    "IN_PROGRESS",
-    "TO_ACCEPT",
-    "ACCEPTED",
-    "CLOSED",
-    "REWORK",
-    "BLOCKED",
-  ];
+const SAMPLE_STATES: Array<[WorkPackageStatus, PackageStatusContext?]> = [
+  ["PLANNED"],
+  ["READY"],
+  ["IN_PROGRESS"],
+  ["TO_ACCEPT"],
+  ["ACCEPTED"],
+  ["CLOSED"],
+  ["REWORK"],
+  ["BLOCKED"],
+  ["BLOCKED", { blockSeverity: "neutral" }],
+  ["TO_ACCEPT", { actualHours: 118, plannedHours: 110 }],
+  ["ACCEPTED", { actualHours: 118, plannedHours: 110 }],
+  ["IN_PROGRESS", { actualHours: 4, plannedHours: 0 }],
+];
 
+function ComponentSampler() {
   return (
     <section
       aria-label="Próbnik komponentów"
@@ -348,15 +348,14 @@ function ComponentSampler() {
         <div className="flex min-w-0 basis-full flex-col">
           <SectionLabel>Stany · kolor tylko przy problemie</SectionLabel>
           <div className="flex flex-wrap items-center gap-2">
-            {statuses.map((s) => {
-              const v = packageStatusView(s);
+            {SAMPLE_STATES.map(([status, context], i) => {
+              const v = packageStatusView(status, context);
               return (
-                <Status key={s} variant={v.variant}>
+                <Status key={i} variant={v.variant}>
                   {v.label}
                 </Status>
               );
             })}
-            <Status variant="warn">Ponad plan</Status>
           </div>
         </div>
         <div className="flex min-w-0 basis-full flex-col">
@@ -379,13 +378,43 @@ function ComponentSampler() {
   );
 }
 
+function ProfileSwitch({
+  value,
+  onChange,
+}: {
+  value: NavProfile;
+  onChange: (profile: NavProfile) => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Rola (podgląd nawigacji)"
+      className="mb-3 grid grid-cols-2 gap-1.5"
+    >
+      {(Object.keys(NAV_PROFILE_LABEL) as NavProfile[]).map((profile) => (
+        <Button
+          key={profile}
+          pressed={value === profile}
+          className="px-2 text-[13.5px]"
+          onClick={() => onChange(profile)}
+        >
+          {NAV_PROFILE_LABEL[profile]}
+        </Button>
+      ))}
+    </div>
+  );
+}
+
 export function UiPreview() {
+  const [profile, setProfile] = useState<NavProfile>("worker");
+
   return (
     <main className="px-4 pt-6 pb-9">
       <div className="mx-auto flex max-w-[1280px] flex-wrap items-start gap-7">
         <section aria-label="Telefon: wpis czasu" className="min-w-0 flex-[0_1_380px]">
-          <Caption>Telefon · pracownik</Caption>
-          <PhoneTimeEntry />
+          <Caption>{`Telefon · ${NAV_PROFILE_LABEL[profile].toLowerCase()}`}</Caption>
+          <ProfileSwitch value={profile} onChange={setProfile} />
+          <PhoneTimeEntry profile={profile} />
         </section>
         <section aria-label="Desktop: pakiety budowy" className="min-w-0 flex-[1_1_560px]">
           <Caption>Desktop · inżynier / kierownik</Caption>
