@@ -1,0 +1,286 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3Concept Work Rysunek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: arkusz na papierze technicznym (delikatna siatka); telefon z wpisem czasu obok okna pakietów budowy; nagłówki jak tabelka rysunkowa. Jeden, jasny motyw (czytelność w słońcu). Kolor tylko przy problemie (ISA-101). */
+:root{
+  color-scheme: light;
+  --paper:#eef1f3; --grid:#dfe4e8; --surface:#ffffff; --ink:#18222b; --ink-2:#56626d; --line:#c3cbd2; --line-strong:#18222b;
+  --navy:#15325a; --navy-dark:#0c2140; --navy-soft:#e7edf5;
+  --alarm:#d9480f; --alarm-soft:#fff0e8; --warn:#b86e00; --warn-soft:#fff6e0; --ok:#2f7d45;
+  --sans:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font-family:var(--sans);font-size:15px;padding:16px;padding-block:24px 36px}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.cap{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin:0 0 8px}
+.stage{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;max-width:1280px;margin:0 auto}
+.col-phone{flex:0 1 380px;min-width:0}
+.col-desk{flex:1 1 560px;min-width:0}
+
+/* tabelka rysunkowa */
+.tblock{display:grid;border:1.5px solid var(--line-strong);background:var(--surface)}
+.tblock>div{padding:5px 8px;border-right:1px solid var(--line);min-width:0}
+.tblock>div:last-child{border-right:0}
+.tblock small{display:block;font:500 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.tblock b{display:block;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tblock .code b{font-family:var(--mono)}
+
+/* oznacznik kablowy */
+.tag{display:inline-flex;align-items:center;font:600 13px var(--mono);letter-spacing:.04em;border:1.5px solid var(--line-strong);background:var(--surface);padding:1px 7px 1px 5px;white-space:nowrap;position:relative}
+.tag::before{content:"";width:5px;height:5px;border-radius:50%;border:1.5px solid var(--line-strong);margin-right:6px;background:var(--paper)}
+
+/* lampki statusu */
+.st{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.st::before{content:"";width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink-2);flex:0 0 auto}
+.st.run{color:var(--navy);font-weight:500}.st.run::before{background:var(--navy);border-color:var(--navy)}
+.st.done::before{background:var(--ok);border-color:var(--ok)}
+.st.block{color:var(--surface);background:var(--alarm);font-weight:600;padding:2px 8px 2px 6px}
+.st.block::before{background:var(--surface);border-color:var(--surface)}
+.st.warn{color:var(--warn);background:var(--warn-soft);font-weight:600;padding:2px 8px 2px 6px;box-shadow:inset 0 0 0 1px var(--warn)}
+.st.warn::before{background:var(--warn);border-color:var(--warn)}
+
+/* przyciski: zawsze z ramką */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;font-size:15px;font-weight:500;color:var(--ink);background:var(--surface);border:1.5px solid var(--line-strong);border-bottom-width:3px;cursor:pointer}
+.btn:active{transform:translateY(1px);border-bottom-width:2px}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy-dark);font-weight:600}
+.btn[aria-pressed="true"]{background:var(--navy-soft);border-color:var(--navy);color:var(--navy);font-weight:600}
+.btn:disabled{color:var(--line);border-color:var(--line);cursor:default}
+
+/* pasek rbh z kreską planu */
+.rbh{position:relative;height:12px;background:var(--surface);border:1px solid var(--line);width:100%}
+.rbh i{position:absolute;left:0;top:0;bottom:0;background:var(--navy)}
+.rbh .over{background:var(--alarm)}
+.rbh::after{content:"";position:absolute;left:calc(100% / 1.25);top:-4px;bottom:-4px;width:2px;background:var(--line-strong)}
+.rbh-l{display:flex;justify-content:space-between;font:12px var(--mono);color:var(--ink-2);margin-top:3px;font-variant-numeric:tabular-nums}
+
+/* telefon */
+.phone{background:var(--surface);border:1.5px solid var(--line-strong);height:760px;display:flex;flex-direction:column;min-width:0}
+.appbar{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 4px}
+.iconbtn{width:44px;height:44px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.appbar h1{font-size:19px;font-weight:600;margin:0;flex:1}
+.phone .tblock{grid-template-columns:auto 1fr auto;margin:0 12px;border-width:1.5px}
+.pbody{flex:1;overflow:auto;padding:16px 12px;display:flex;flex-direction:column;gap:20px}
+.lbl{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px;display:block}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg .btn{min-height:48px}
+.pick{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border:1.5px solid var(--line);cursor:pointer;background:var(--surface)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .rd{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink-2);flex:0 0 auto;display:grid;place-items:center}
+.opt:has(input:checked){border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);background:var(--navy-soft)}
+.opt:has(input:checked) .rd{border-color:var(--navy)}
+.opt:has(input:checked) .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--navy)}
+.opt:has(input:focus-visible){outline:2px solid var(--navy);outline-offset:2px}
+.opt .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+.opt .sub{font-size:13px;color:var(--ink-2)}
+.opt.link{justify-content:center;border-style:dashed;color:var(--navy);font-weight:500;min-height:48px}
+.hours{display:grid;grid-template-columns:56px 1fr 56px;gap:8px}
+.hours .btn{min-height:56px;font-size:24px;padding:0}
+.hours output{display:grid;place-items:center;border:1.5px solid var(--line-strong);font:600 26px var(--mono);font-variant-numeric:tabular-nums}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.quick .btn{min-height:44px;font-family:var(--mono)}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chips .opt{min-height:52px;font-size:14px}
+.field{width:100%;min-height:48px;font:16px var(--sans);padding:10px 12px;border:1.5px solid var(--line);color:var(--ink);background:var(--surface)}
+.field:focus{border-color:var(--navy);outline:none;box-shadow:inset 0 0 0 1px var(--navy)}
+.savebar{padding:10px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.savebar .btn{min-height:56px;font-size:17px;width:100%}
+.savebar p{margin:0;font-size:12.5px;color:var(--ink-2);text-align:center}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1.5px solid var(--line-strong)}
+.nav button{background:var(--surface);border:0;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12.5px;color:var(--ink-2);cursor:pointer;position:relative}
+.nav button[aria-current="page"]{color:var(--navy);font-weight:600}
+.nav button[aria-current="page"]::before{content:"";position:absolute;top:-1.5px;left:18%;right:18%;height:3px;background:var(--navy)}
+.nav svg{width:22px;height:22px}
+
+/* desktop */
+.desk{background:var(--surface);border:1.5px solid var(--line-strong);min-width:0}
+.dhead{display:flex;align-items:stretch;border-bottom:1.5px solid var(--line-strong);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;padding:10px 16px;border-right:1px solid var(--line);font-weight:700;letter-spacing:.02em}
+.brand .mk{width:22px;height:22px;background:var(--navy);display:grid;place-items:center;color:#fff;font:700 11px var(--mono)}
+.desk .tblock{border:0;flex:1;grid-template-columns:repeat(4,minmax(0,1fr));min-width:0}
+.desk .tblock>div{padding:7px 12px}
+.alarmbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--alarm-soft);border-bottom:1px solid var(--alarm);flex-wrap:wrap}
+.alarmbar .st{flex:0 0 auto}
+.alarmbar span.msg{flex:1;min-width:200px;font-size:14px}
+.alarmbar .btn{min-height:34px;font-size:14px}
+.toolbar{display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap;align-items:center}
+.toolbar .sp{flex:1}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters .btn{min-height:34px;font-size:13.5px;padding:0 12px}
+.tw{overflow-x:auto;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:700px;font-size:14px}
+th{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:10px 16px;border-bottom:1.5px solid var(--line-strong);white-space:nowrap}
+th.num,td.num{text-align:right}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.num{font:14px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.alarm td:first-child{box-shadow:inset 4px 0 var(--alarm)}
+tr.warn td:first-child{box-shadow:inset 4px 0 var(--warn)}
+td .sub{display:block;font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.foot{display:flex;justify-content:space-between;gap:12px;padding:10px 16px;font:12px var(--mono);color:var(--ink-2);flex-wrap:wrap}
+
+/* próbnik */
+.kit{max-width:1280px;margin:32px auto 0;background:var(--surface);border:1.5px solid var(--line-strong)}
+.kit .in{padding:16px;display:flex;flex-wrap:wrap;gap:20px 32px;align-items:flex-start}
+.grp{display:flex;flex-direction:column;gap:10px;min-width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{max-width:1280px;margin:12px auto 0;font:12px var(--mono);color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+</style></head><body>
+
+<div class="stage">
+  <section class="col-phone" aria-label="Telefon: wpis czasu">
+    <p class="cap">Telefon · pracownik</p>
+    <div class="phone">
+      <div class="appbar">
+        <button class="iconbtn" type="button" aria-label="Wstecz"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <h1>Wpis czasu</h1>
+      </div>
+      <div class="tblock">
+        <div class="code"><small>Bud.</small><b>075</b></div>
+        <div><small>Obiekt</small><b>SE Olszyna 110/15 kV</b></div>
+        <div class="code"><small>Data</small><b id="dayv">29.09</b></div>
+      </div>
+
+      <form class="pbody" id="f" autocomplete="off">
+        <div>
+          <span class="lbl">Dzień</span>
+          <div class="seg">
+            <button class="btn" type="button" data-day="28.09" aria-pressed="false">Wczoraj</button>
+            <button class="btn" type="button" data-day="29.09" aria-pressed="true">Dziś</button>
+          </div>
+        </div>
+
+        <div>
+          <span class="lbl">Pakiet</span>
+          <div class="pick">
+            <label class="opt"><input type="radio" name="pk" id="pk1" value="KAB-01" checked><span class="rd"></span><span class="tx"><span><span class="tag">KAB-01</span></span><span>Układanie kabli SN · pole Q3</span></span></label>
+            <label class="opt"><input type="radio" name="pk" id="pk2" value="OBW-03"><span class="rd"></span><span class="tx"><span><span class="tag">OBW-03</span></span><span>Podłączenia szafy R1</span></span></label>
+            <button class="opt link" type="button">Wybierz inny pakiet</button>
+          </div>
+        </div>
+
+        <div>
+          <span class="lbl">Godziny</span>
+          <div class="hours">
+            <button class="btn" type="button" id="minus" aria-label="Mniej o pół godziny">−</button>
+            <output id="h" aria-live="polite">8,0</output>
+            <button class="btn" type="button" id="plus" aria-label="Więcej o pół godziny">+</button>
+          </div>
+          <div class="quick"><button class="btn" type="button" data-h="4">4</button><button class="btn" type="button" data-h="6">6</button><button class="btn" type="button" data-h="8">8</button><button class="btn" type="button" data-h="10">10</button></div>
+        </div>
+
+        <div>
+          <span class="lbl">Rodzaj czasu</span>
+          <div class="chips">
+            <label class="opt"><input type="radio" name="tc" id="tc1" checked><span class="rd"></span>Na pakiecie</label>
+            <label class="opt"><input type="radio" name="tc" id="tc2"><span class="rd"></span>Pomocnicza</label>
+            <label class="opt"><input type="radio" name="tc" id="tc3"><span class="rd"></span>Przestój</label>
+            <label class="opt"><input type="radio" name="tc" id="tc4"><span class="rd"></span>Zastępcza</label>
+          </div>
+        </div>
+
+        <div>
+          <label class="lbl" for="note">Uwaga · opcjonalnie</label>
+          <input class="field" id="note" placeholder="np. brak dostawy koryt">
+        </div>
+      </form>
+
+      <div class="savebar">
+        <button class="btn primary" type="submit" form="f">Zapisz 8,0 h</button>
+        <p id="sb">Wczoraj 8,0 h · zatwierdzone przez brygadzistę</p>
+      </div>
+      <nav class="nav" aria-label="Nawigacja">
+        <button type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13h5l1.5 3h5L16 13h5M5 5h14l2 8v6H3v-6z"/></svg>Kolejka</button>
+        <button type="button" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Czas</button>
+        <button type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-5 8 5v12M9 21v-6h6v6"/></svg>Budowy</button>
+        <button type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+      </nav>
+    </div>
+  </section>
+
+  <section class="col-desk" aria-label="Desktop: pakiety budowy">
+    <p class="cap">Desktop · inżynier / kierownik</p>
+    <div class="desk">
+      <div class="dhead">
+        <div class="brand"><span class="mk">3C</span>Work</div>
+        <div class="tblock">
+          <div class="code"><small>Budowa</small><b>075</b></div>
+          <div><small>Obiekt</small><b>SE Olszyna 110/15 kV</b></div>
+          <div><small>Arkusz</small><b>Pakiety robocze</b></div>
+          <div><small>Aktualizacja</small><b>29.09 14:20 · inż. budowy</b></div>
+        </div>
+      </div>
+
+      <div class="alarmbar" role="status">
+        <span class="st block">Blokada</span>
+        <span class="msg"><span class="tag">TRS-02</span> Koryta kablowe K2: brak materiału. Zamówienie <span class="tag">PO-075-014</span>, dostawa 02.10.</span>
+        <button class="btn" type="button">Szczegóły</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="Filtr">
+          <button class="btn" type="button" aria-pressed="true">Wszystkie 5</button>
+          <button class="btn" type="button" aria-pressed="false">Wymagają reakcji 2</button>
+          <button class="btn" type="button" aria-pressed="false">W toku 1</button>
+        </div>
+        <span class="sp"></span>
+        <button class="btn primary" type="button">+ Nowy pakiet</button>
+      </div>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Pakiet</th><th>Etap / pole</th><th>Stan</th><th class="num">rbh wyk. / plan</th><th style="width:190px">Wykonanie względem planu</th></tr></thead>
+          <tbody>
+            <tr class="alarm"><td><span class="tag">TRS-02</span><span class="sub">Koryta kablowe, kanał K2</span></td><td>Trasy kablowe</td><td><span class="st block">Zablokowany</span></td><td class="num">12,5 / 40,0</td><td><div class="rbh"><i style="width:25%"></i></div><div class="rbh-l"><span>31 %</span><span>plan</span></div></td></tr>
+            <tr class="warn"><td><span class="tag">OBW-03</span><span class="sub">Podłączenia szafy R1</span></td><td>Obwody wtórne · bud. stacyjny</td><td><span class="st warn">Ponad plan · do odbioru</span></td><td class="num">118,0 / 110,0</td><td><div class="rbh"><i style="width:80%"></i><i class="over" style="left:80%;width:5.8%"></i></div><div class="rbh-l"><span>107 %</span><span>+8,0 rbh</span></div></td></tr>
+            <tr><td><span class="tag">KAB-01</span><span class="sub">Układanie kabli SN</span></td><td>Kable · Q3</td><td><span class="st run">W toku</span></td><td class="num">42,0 / 60,0</td><td><div class="rbh"><i style="width:56%"></i></div><div class="rbh-l"><span>70 %</span><span>plan</span></div></td></tr>
+            <tr><td><span class="tag">KON-01</span><span class="sub">Konstrukcje wsporcze aparatury</span></td><td>Konstrukcje · Q1–Q4</td><td><span class="st done">Odebrany</span></td><td class="num">80,0 / 96,0</td><td><div class="rbh"><i style="width:66.7%"></i></div><div class="rbh-l"><span>83 %</span><span>plan</span></div></td></tr>
+            <tr><td><span class="tag">KAB-02</span><span class="sub">Obróbka i podłączenie kabli SN</span></td><td>Kable · Q3</td><td><span class="st">Planowany</span></td><td class="num">0,0 / 45,0</td><td><div class="rbh"></div><div class="rbh-l"><span>0 %</span><span>plan</span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="foot"><span>5 pakietów · 252,5 / 351,0 rbh</span><span>Przestoje w tym tygodniu: 6,5 h (brak materiału)</span></div>
+    </div>
+  </section>
+</div>
+
+<section class="kit" aria-label="Próbnik komponentów">
+  <div class="dhead"><div class="brand"><span class="mk">3C</span>Komponenty</div></div>
+  <div class="in">
+    <div class="grp"><span class="lbl">Przyciski</span><div class="row"><button class="btn primary" type="button">Zatwierdź dzień</button><button class="btn" type="button">Popraw</button><button class="btn" type="button" aria-pressed="true">Wybrany</button><button class="btn" type="button" disabled>Nieaktywny</button></div></div>
+    <div class="grp"><span class="lbl">Oznaczniki</span><div class="row"><span class="tag">075</span><span class="tag">KAB-01</span><span class="tag">PO-075-014</span><span class="tag">WZ 2026/09/118</span></div></div>
+    <div class="grp" style="flex:1 1 100%"><span class="lbl">Stany · kolor tylko przy problemie</span><div class="row"><span class="st">Planowany</span><span class="st">Gotowy</span><span class="st run">W toku</span><span class="st">Wstrzymany</span><span class="st">Do odbioru</span><span class="st done">Odebrany</span><span class="st">Zamknięty</span><span class="st warn">Poprawki</span><span class="st warn">Ponad plan</span><span class="st block">Zablokowany</span></div></div>
+  </div>
+</section>
+<p class="note">Dane przykładowe (fikcyjne). Kierunek „Tabelka rysunkowa + nastawnia” — do porównania z wersją Win98.</p>
+
+<script>
+(function(){
+  let h = 8;
+  const out = document.getElementById('h');
+  const save = document.querySelector('.savebar .btn');
+  const fmt = v => v.toFixed(1).replace('.', ',');
+  const set = v => { h = Math.max(0, Math.min(16, v)); out.textContent = fmt(h); save.textContent = 'Zapisz ' + fmt(h) + ' h'; };
+  document.getElementById('minus').addEventListener('click', () => set(h - 0.5));
+  document.getElementById('plus').addEventListener('click', () => set(h + 0.5));
+  document.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => set(+b.dataset.h)));
+  document.querySelectorAll('[data-day]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-day]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    document.getElementById('dayv').textContent = b.dataset.day;
+  }));
+  document.querySelectorAll('.filters .btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.filters .btn').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  }));
+  document.getElementById('f').addEventListener('submit', e => {
+    e.preventDefault();
+    const pk = document.querySelector('input[name="pk"]:checked').value;
+    document.getElementById('sb').textContent = 'Zapisano ' + fmt(h) + ' h · ' + pk + ' · czeka na brygadzistę';
+  });
+})();
+</script>
+</body></html>
