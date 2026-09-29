@@ -232,7 +232,9 @@ Statusy pakietu (enum):
 `PLANNED → READY → IN_PROGRESS ⇄ BLOCKED → TO_ACCEPT → ACCEPTED → CLOSED`,
 plus `REWORK` (wymaga poprawek) wracający do `IN_PROGRESS`.
 Dozwolone przejścia zdefiniowane w `work-packages/domain.ts` i
-pokryte testami. (Patrz decyzja D6 — `wstrzymany` vs `zablokowany`.)
+pokryte testami. Decyzja D6: nie ma osobnego statusu „wstrzymany” —
+to `BLOCKED` z przyczyną, której kategoria ma `severity = NEUTRAL`
+(UI pokazuje wtedy neutralne „Wstrzymany” zamiast alarmu).
 
 ### M3 — rbh i przestoje
 
@@ -254,7 +256,8 @@ Reguły domenowe (testowane): `PRODUCTIVE` wymaga `packageId`;
 suma minut osoby w dniu ≤ limit z `AppSetting`; wpis `APPROVED` można
 zmienić tylko korektą z powodem → audit log.
 
-**DowntimeCategory** — słownik (§8): `name`, `isActive`, `order`
+**DowntimeCategory** — słownik (§8): `name`, `isActive`, `order`,
+`severity` (`ALARM | NEUTRAL`, domyślnie `ALARM`; `NEUTRAL` = „wstrzymany”, D6)
 
 **Downtime** — zdarzenie przestoju
 
@@ -284,12 +287,13 @@ Blokujące — potrzebne **przed** wskazanym milestone'em.
 
 **Podjęte 2026-09-29:**
 
-| #   | Decyzja                      | Ustalenie                                                                        |
-| --- | ---------------------------- | -------------------------------------------------------------------------------- |
-| D1  | Baza lokalna do developmentu | **Docker Desktop** + `docker-compose.yml` (Postgres, później storage plików)     |
-| D2  | Logowanie                    | **Login + hasło, bez e-maila**; konta i reset haseł przez admina/kierownika      |
-| D3  | Konta pracowników            | **Każdy pracownik ma konto** i sam wpisuje swoje godziny; brygadzista zatwierdza |
-| D4  | Kontrakt ↔ budowa            | **1 kontrakt = 1 budowa**; jedna encja `Site` z numerem budowy                   |
+| #   | Decyzja                       | Ustalenie                                                                                                                                   |
+| --- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Baza lokalna do developmentu  | **Docker Desktop** + `docker-compose.yml` (Postgres, później storage plików)                                                                |
+| D2  | Logowanie                     | **Login + hasło, bez e-maila**; konta i reset haseł przez admina/kierownika                                                                 |
+| D3  | Konta pracowników             | **Każdy pracownik ma konto** i sam wpisuje swoje godziny; brygadzista zatwierdza                                                            |
+| D4  | Kontrakt ↔ budowa             | **1 kontrakt = 1 budowa**; jedna encja `Site` z numerem budowy                                                                              |
+| D6  | „Wstrzymany” vs „zablokowany” | **Jeden status `BLOCKED`** + kategoria przyczyny z polem `severity` (`ALARM \| NEUTRAL`); `NEUTRAL` = „wstrzymany” (bez osobnego `ON_HOLD`) |
 
 **Otwarte:**
 
@@ -297,7 +301,6 @@ Blokujące — potrzebne **przed** wskazanym milestone'em.
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | D4a | **Format numeru budowy** — przykładowe numery (np. „075"? z rokiem?)                                                                      | przed realnymi budowami (w becie dowolny tekst) | przyjąć istniejący format bez zmian, walidacja wg przykładów                                        |
 | D5  | **Workflow zatwierdzania czasu** — kto zatwierdza (brygadzista? inżynier?), czy pracownik może edytować po wysłaniu, termin zatwierdzenia | M3                                              | pracownik wpisuje → brygadzista zatwierdza dzień ekipy → inżynier widzi i może skorygować z powodem |
-| D6  | **„Wstrzymany" (§5.3) vs „Zablokowany" (§39)** — jeden status czy dwa?                                                                    | M2                                              | jeden: `BLOCKED` z obowiązkową przyczyną; „wstrzymany decyzją" to po prostu kategoria przyczyny     |
 | D7  | **Granulacja czasu** — 15 min, 30 min, 1 h? Nadgodziny w MVP?                                                                             | M3                                              | 30 min; nadgodziny poza MVP (to temat płacowy — §32 pkt 6)                                          |
 | D8  | **Format kodu pakietu** i kto zakłada pakiety                                                                                             | M2                                              | `<nr budowy>-<etap>-<nr>`, np. `075-OW-012`; zakłada inżynier/kierownik                             |
 | D9  | **Hosting** (produkcja)                                                                                                                   | przed pilotażem, nie blokuje M0                 | VPS w UE (np. Hetzner/OVH) + Docker Compose — RODO i łatwy dostęp dla Sync Agenta                   |

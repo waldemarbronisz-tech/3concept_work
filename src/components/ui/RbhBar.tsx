@@ -10,11 +10,11 @@ export interface RbhBarProps {
   className?: string;
 }
 
-/** Wykonanie rbh na skali 0–125 %, kreska planu na 100 %, nadwyżka osobno. */
+/** Wykonanie rbh na skali 0–125 %, kreska planu na 100 %, nadwyżka osobno; bez planu — pusty. */
 export function RbhBar({ actual, plan, className }: RbhBarProps) {
   const g = rbhBarGeometry(actual, plan);
-  const percentText = g.percent === null ? "— %" : `${g.percent} %`;
-  const diffText = g.diff > 0 ? `+${formatHours(g.diff)} rbh` : "plan";
+  const percentText = g.percent === null ? "bez planu rbh" : `${g.percent} %`;
+  const diffText = g.percent === null ? "" : g.diff > 0 ? `+${formatHours(g.diff)} rbh` : "plan";
 
   return (
     <div className={cn("min-w-0", className)}>

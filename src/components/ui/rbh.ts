@@ -9,9 +9,9 @@ export interface RbhBarGeometry {
   fillWidth: number;
   /** Szerokość nadwyżki od kreski planu, w % szerokości paska (0–20). */
   overWidth: number;
-  /** Nadwyżka nie mieści się w skali (> 125 % albo praca bez planu). */
+  /** Nadwyżka nie mieści się w skali (> 125 %). */
   clipped: boolean;
-  /** Wykonanie minus plan, w rbh. */
+  /** Wykonanie minus plan, w rbh; 0, gdy planu brak (nie ma nadwyżki). */
   diff: number;
 }
 
@@ -19,20 +19,13 @@ const toBar = (percentOfPlan: number) => (percentOfPlan / RBH_SCALE_MAX_PERCENT)
 
 export function rbhBarGeometry(actual: number, plan: number): RbhBarGeometry {
   const done = Math.max(0, actual);
-  const diff = done - Math.max(0, plan);
 
   if (plan <= 0) {
-    // Bez planu każda przepracowana godzina jest nadwyżką.
-    const over = done > 0;
-    return {
-      percent: null,
-      fillWidth: 0,
-      overWidth: over ? 100 - RBH_PLAN_MARK : 0,
-      clipped: over,
-      diff,
-    };
+    // Bez planu nie ma skali ani nadwyżki — pasek pusty, opis neutralny.
+    return { percent: null, fillWidth: 0, overWidth: 0, clipped: false, diff: 0 };
   }
 
+  const diff = done - plan;
   const ratio = (done / plan) * 100;
   return {
     percent: Math.round(ratio),

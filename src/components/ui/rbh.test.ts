@@ -60,12 +60,13 @@ describe("rbhBarGeometry", () => {
     });
   });
 
-  it("plan = 0 z pracą — cała praca to nadwyżka", () => {
-    const g = rbhBarGeometry(4, 0);
-    expect(g.percent).toBeNull();
-    expect(g.fillWidth).toBe(0);
-    expect(g.overWidth).toBeCloseTo(20);
-    expect(g.clipped).toBe(true);
-    expect(g.diff).toBe(4);
+  it("plan = 0 z pracą — bez nadwyżki, pasek pusty", () => {
+    expect(rbhBarGeometry(4, 0)).toEqual({
+      percent: null,
+      fillWidth: 0,
+      overWidth: 0,
+      clipped: false,
+      diff: 0,
+    });
   });
 });
