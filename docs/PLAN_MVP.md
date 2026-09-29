@@ -54,6 +54,8 @@ Zasady:
 | PWA       | manifest + ikony w M0, service worker/offline później                                                                            | nie komplikuje MVP                                                                   |
 | Język UI  | tylko polski, teksty w jednym miejscu                                                                                            | brak funkcji „na zapas"                                                              |
 
+Obowiązującym źródłem wyglądu i komponentów UI jest [docs/UI_STYLE.md](UI_STYLE.md) — ma pierwszeństwo przed wzmianką o shadcn/ui w tabeli powyżej.
+
 ### Konwencje danych (z §29, doprecyzowane)
 
 - `id` — CUID2 (`String @id @default(cuid())`).
