@@ -7,5 +7,4 @@ next-env.d.ts
 # Dokumenty wymagań edytowane poza repo — bez przeformatowywania.
 PROJECT.md
 AGENTS.md
-docs/UI_STYLE.md
 docs/ui/preview.html

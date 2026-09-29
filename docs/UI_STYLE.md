@@ -9,12 +9,12 @@
 Aplikacja ma wyglądać jak **narzędzie inżynierskie**, a nie jak ogólny SaaS.
 Źródła języka wizualnego pochodzą ze świata 3Concept:
 
-| Źródło | Co bierzemy |
-|---|---|
-| Dokumentacja techniczna | papier z delikatną siatką, cienkie precyzyjne linie, **tabelka rysunkowa** w nagłówku ekranu |
-| Nastawnia / HMI (ISA-101) | spokojna, szara baza; **kolor tylko wtedy, gdy coś wymaga reakcji** |
-| Oznaczniki kablowe | kody (budowa, pakiet, zamówienie, WZ) jako **oznacznik**: ramka + mono |
-| Win98 | przycisk zawsze wygląda jak przycisk (ramka, pogrubiony dół, „siada” po wciśnięciu) |
+| Źródło                    | Co bierzemy                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| Dokumentacja techniczna   | papier z delikatną siatką, cienkie precyzyjne linie, **tabelka rysunkowa** w nagłówku ekranu |
+| Nastawnia / HMI (ISA-101) | spokojna, szara baza; **kolor tylko wtedy, gdy coś wymaga reakcji**                          |
+| Oznaczniki kablowe        | kody (budowa, pakiet, zamówienie, WZ) jako **oznacznik**: ramka + mono                       |
+| Win98                     | przycisk zawsze wygląda jak przycisk (ramka, pogrubiony dół, „siada” po wciśnięciu)          |
 
 ## 2. Zasady nadrzędne
 
@@ -28,23 +28,25 @@ Aplikacja ma wyglądać jak **narzędzie inżynierskie**, a nie jak ogólny SaaS
 4. **Żadnych przycisków-duchów.** Każdy element klikalny ma ramkę albo wypełnienie.
 5. **Stan nigdy nie jest samym kolorem** — zawsze kolor + kształt lampki + tekst.
 6. **Telefon pierwszy.** Cele dotyku ≥ 48 px, główna akcja 56 px na całą szerokość.
+   Rozmiar zależy od rodzaju wskaźnika, nie od szerokości ekranu: `@media (pointer: coarse)`
+   → 48 px, 40 px tylko przy `pointer: fine` (mysz).
 
 ## 3. Tokeny
 
 ### Kolory
 
-| Token | Wartość | Użycie |
-|---|---|---|
-| `paper` | `#eef1f3` | tło aplikacji (z siatką 24 px w kolorze `grid`) |
-| `grid` | `#dfe4e8` | linie siatki tła |
-| `surface` | `#ffffff` | arkusze, karty, pola |
-| `ink` | `#18222b` | tekst, mocne ramki |
-| `ink-2` | `#56626d` | tekst pomocniczy, etykiety, stany neutralne |
-| `line` | `#c3cbd2` | ramki pól, podziały tabel |
-| `navy` / `navy-dark` / `navy-soft` | `#15325a` / `#0c2140` / `#e7edf5` | akcja główna, zaznaczenie, „w toku” |
-| `alarm` / `alarm-soft` | `#d9480f` / `#fff0e8` | blokada, przekroczenie, błąd |
-| `warn` / `warn-soft` | `#b86e00` / `#fff6e0` | ostrzeżenie: ponad plan, poprawki |
-| `ok` | `#2f7d45` | tylko lampka „odebrany” |
+| Token                              | Wartość                           | Użycie                                          |
+| ---------------------------------- | --------------------------------- | ----------------------------------------------- |
+| `paper`                            | `#eef1f3`                         | tło aplikacji (z siatką 24 px w kolorze `grid`) |
+| `grid`                             | `#dfe4e8`                         | linie siatki tła                                |
+| `surface`                          | `#ffffff`                         | arkusze, karty, pola                            |
+| `ink`                              | `#18222b`                         | tekst, mocne ramki                              |
+| `ink-2`                            | `#56626d`                         | tekst pomocniczy, etykiety, stany neutralne     |
+| `line`                             | `#c3cbd2`                         | ramki pól, podziały tabel                       |
+| `navy` / `navy-dark` / `navy-soft` | `#15325a` / `#0c2140` / `#e7edf5` | akcja główna, zaznaczenie, „w toku”             |
+| `alarm` / `alarm-soft`             | `#d9480f` / `#fff0e8`             | blokada, przekroczenie, błąd                    |
+| `warn` / `warn-soft`               | `#b86e00` / `#fff6e0`             | ostrzeżenie: ponad plan, poprawki               |
+| `ok`                               | `#2f7d45`                         | tylko lampka „odebrany”                         |
 
 Kolor firmowy 3Concept (jeśli zostanie podany) zastępuje `navy`. Tryb ciemny: brak w MVP.
 
@@ -66,37 +68,55 @@ Kolor firmowy 3Concept (jeśli zostanie podany) zastępuje `navy`. Tryb ciemny: 
 
 ## 4. Komponenty (`src/components/ui/`)
 
-| Komponent | Opis |
-|---|---|
-| `Button` | warianty `primary` (granat), `default` (biały z ramką), stan `pressed` (toggle); min. 40 px desktop, 48 px telefon |
-| `TitleBlock` | tabelka rysunkowa: siatka komórek `{label, value, mono?}`; ramka 1.5 px |
-| `Tag` | oznacznik kodu: mono 600, ramka 1.5 px, „oczko” z lewej |
-| `Status` | lampka + tekst; warianty `neutral`, `run`, `done`, `warn`, `alarm` (warn/alarm z tłem) |
-| `AlarmBar` | pasek nad treścią: status + opis + akcja |
-| `RbhBar` | pasek wykonania rbh: skala 0–125 %, kreska planu na 100 %, nadwyżka w `alarm`; pod spodem % i różnica |
-| `OptionCard` | radio jako karta 56 px (wybór pakietu, rodzaju czasu) |
-| `Stepper` | − wartość + (godziny co 0,5 h) + szybkie wartości |
-| `TextField` | 48 px, ramka `line`, fokus granatowy |
-| `DataTable` | nagłówki mono uppercase, wiersz z problemem ma znacznik 4 px z lewej w kolorze stanu; na telefonie → lista |
-| `AppBar` (telefon) | wstecz + tytuł ekranu + `TitleBlock` pod spodem |
-| `BottomNav` (telefon) | 4 pozycje z ikoną i podpisem; aktywna: granat + belka 3 px u góry |
-| `SheetHeader` (desktop) | znak firmy + `TitleBlock` |
+| Komponent               | Opis                                                                                                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`                | warianty `primary` (granat), `default` (biały z ramką), stan `pressed` (toggle); 48 px przy `pointer: coarse`, 40 px przy `pointer: fine`; akcja główna 56 px     |
+| `TitleBlock`            | tabelka rysunkowa: siatka komórek `{label, value, mono?}`; ramka 1.5 px                                                                                           |
+| `Tag`                   | oznacznik kodu: mono 600, ramka 1.5 px, „oczko” z lewej                                                                                                           |
+| `Status`                | lampka + tekst; warianty `neutral`, `run`, `done`, `warn`, `alarm` (warn/alarm z tłem)                                                                            |
+| `AlarmBar`              | pasek nad treścią: status + opis + akcja                                                                                                                          |
+| `RbhBar`                | pasek wykonania rbh: skala 0–125 %, kreska planu na 100 %, nadwyżka w `alarm`; pod spodem % i różnica; przy planie 0 pusty z opisem „bez planu rbh”, bez nadwyżki |
+| `OptionCard`            | radio jako karta 56 px (wybór pakietu, rodzaju czasu)                                                                                                             |
+| `Stepper`               | − wartość + (godziny co 0,5 h) + szybkie wartości                                                                                                                 |
+| `TextField`             | 48 px, ramka `line`, fokus granatowy                                                                                                                              |
+| `DataTable`             | nagłówki mono uppercase, wiersz z problemem ma znacznik 4 px z lewej w kolorze stanu; na telefonie → lista                                                        |
+| `AppBar` (telefon)      | wstecz + tytuł ekranu + `TitleBlock` pod spodem                                                                                                                   |
+| `BottomNav` (telefon)   | 4 pozycje z ikoną i podpisem; aktywna: granat + belka 3 px u góry; pozycje wg roli z `src/app/navigation.ts` (§5)                                                 |
+| `SheetHeader` (desktop) | znak firmy + `TitleBlock`                                                                                                                                         |
 
-Mapowanie stanów pakietu:
+Mapowanie stanów pakietu (`packageStatusView` w `src/components/ui/package-status.ts`):
 
-| Stan | Wariant `Status` |
-|---|---|
-| planowany, gotowy, wstrzymany, do odbioru, zamknięty | `neutral` |
-| w toku | `run` |
-| odebrany | `done` |
-| wymaga poprawek, ponad plan rbh | `warn` |
-| zablokowany | `alarm` |
+| Stan                                                      | Wariant `Status`              |
+| --------------------------------------------------------- | ----------------------------- |
+| planowany, gotowy, do odbioru, zamknięty                  | `neutral`                     |
+| wstrzymany (`BLOCKED` z przyczyną o `severity = neutral`) | `neutral`, tekst „Wstrzymany” |
+| w toku                                                    | `run`                         |
+| odebrany                                                  | `done`                        |
+| wymaga poprawek                                           | `warn`                        |
+| zablokowany (`BLOCKED`, przyczyna o `severity = alarm`)   | `alarm`                       |
+
+Warunki nakładane na stan:
+
+- **Ponad plan rbh** podnosi do `warn` („Ponad plan · …”) tylko stany aktywne: w toku,
+  do odbioru, wymaga poprawek. Odebrany i zamknięty zostają przy wariancie bazowym —
+  nadwyżka jest nadal widoczna w kolumnie rbh. Blokady nie przykrywa.
+- **Plan = 0** — neutralnie, `RbhBar` pokazuje „bez planu rbh”. Wyjątek: w toku →
+  `warn` „Brak planu rbh · w toku”.
+- „Wstrzymany” to nie osobny status (decyzja D6 w `docs/PLAN_MVP.md`): jeden `BLOCKED`,
+  a o wyglądzie decyduje pole `severity` kategorii przyczyny.
 
 ## 5. Układ
 
 **Telefon:** `AppBar` z `TitleBlock` → treść w jednej kolumnie (sekcje z etykietą mono)
 → przyklejony pasek głównej akcji z krótką informacją zwrotną pod przyciskiem
-→ `BottomNav` (Kolejka · Czas · Budowy · Menu, zależnie od roli).
+→ `BottomNav` z pozycjami zależnymi od roli (U-04, konfiguracja w `src/app/navigation.ts`):
+
+| Rola               | Pozycje                          |
+| ------------------ | -------------------------------- |
+| Pracownik          | Kolejka · Czas · Pakiety · Menu  |
+| Brygadzista        | Kolejka · Ekipa · Pakiety · Menu |
+| Inżynier           | Kolejka · Budowa · Czas · Menu   |
+| Kierownik / Zarząd | Kolejka · Budowy · Czas · Menu   |
 
 **Desktop:** tło `paper` z siatką → arkusz (`surface`, ramka `ink`) → `SheetHeader`
 → `AlarmBar` (jeśli są problemy) → pasek narzędzi (filtry + akcja główna)
@@ -115,7 +135,8 @@ z licencją komercyjną (np. Lucide, ISC). Na telefonie zawsze z podpisem.
 
 ## 8. Otwarte
 
-| ID | Pytanie |
-|---|---|
+| ID   | Pytanie                                                     |
+| ---- | ----------------------------------------------------------- |
 | U-01 | Kolor firmowy i logo 3Concept (zastąpią `navy` i znak „3C”) |
-| U-04 | Pozycje `BottomNav` dla każdej roli |
+
+Rozstrzygnięte: **U-04** — pozycje `BottomNav` dla ról (§5).
