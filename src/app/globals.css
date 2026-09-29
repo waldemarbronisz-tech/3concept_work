@@ -1,30 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tokeny z docs/UI_STYLE.md §3. Jeden jasny motyw — w MVP nie ma trybu ciemnego. */
+@theme {
+  --color-paper: #eef1f3;
+  --color-grid: #dfe4e8;
+  --color-surface: #ffffff;
+  --color-ink: #18222b;
+  --color-ink-2: #56626d;
+  --color-line: #c3cbd2;
+  --color-navy: #15325a;
+  --color-navy-dark: #0c2140;
+  --color-navy-soft: #e7edf5;
+  --color-alarm: #d9480f;
+  --color-alarm-soft: #fff0e8;
+  --color-warn: #b86e00;
+  --color-warn-soft: #fff6e0;
+  --color-ok: #2f7d45;
+
+  /* Promień 0, bez cieni: wyłączamy skalę z Tailwinda, żeby nie kusiła. */
+  --radius-*: initial;
+  --shadow-*: initial;
+  --drop-shadow-*: initial;
 }
 
+/* Zmienne fontów ustawia next/font na <html> (src/app/layout.tsx). */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --font-sans: var(--font-plex-sans), "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    color-scheme: light;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  /* Fonty systemowe: bez pobierania z sieci, pełne polskie znaki. */
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  body {
+    background-color: var(--color-paper);
+    background-image:
+      linear-gradient(var(--color-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 2px;
+  }
 }
