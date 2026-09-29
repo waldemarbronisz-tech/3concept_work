@@ -148,7 +148,7 @@ dostaje je każda encja biznesowa.
 - `userId`, `role` (`MANAGEMENT | ADMIN | CONTRACT_MANAGER | SITE_ENGINEER | FOREMAN | WORKER`)
 - `siteId?` — pusty zakres = globalnie (tylko `MANAGEMENT` i `ADMIN`);
   `CONTRACT_MANAGER`, `SITE_ENGINEER`, `FOREMAN` zawsze z budową;
-  `WORKER` bez budowy (dostęp do własnych danych)
+  `WORKER` bez budowy — jego zakres wyznacza aktywne `SiteAssignment`
 - `validFrom`, `validTo?` — historia, kto był odpowiedzialny (§36.1)
 - **użytkownik może mieć wiele ról** (np. `MANAGEMENT` + `ADMIN`, albo
   `FOREMAN` na jednej budowie i `WORKER`); uprawnienia się sumują
@@ -162,27 +162,54 @@ Role (PROJECT.md §3, z rozdzieleniem „Administrator / Zarząd” — D10):
 | `CONTRACT_MANAGER` | kierownik kontraktu | przypisane budowy: budżet i realizacja, pakiety, zespół, koszty, raporty                                           |
 | `SITE_ENGINEER`    | inżynier budowy     | przypisane budowy: operacyjnie — pakiety, dziennik, rbh, przestoje, dokumenty, odbiory                             |
 | `FOREMAN`          | brygadzista         | przypisane budowy: pakiety i zespół (podgląd), raport wykonania, godziny i przestoje brygady                       |
-| `WORKER`           | pracownik           | własne godziny, zadania i pakiety, w których uczestniczy                                                           |
+| `WORKER`           | pracownik           | budowy, do których jest przypisany: pakiety bez rbh i kosztów, własne wpisy czasu                                  |
 
 Macierz uprawnień na poziomie obszarów (szczegółowe `Permission` w
 iteracji 4). ✔ = pełny dostęp w zakresie roli, **odczyt** = bez zmian,
-**przypisane** = tylko budowy z `RoleAssignment.siteId`, **własne** =
-tylko własne dane, — = brak.
+**przypisane** = budowy z `RoleAssignment.siteId`, **swoje budowy** =
+budowy z aktywnym `SiteAssignment`, — = brak. Przypisy pod tabelą.
 
-| Obszar                                          | MANAGEMENT         | ADMIN                          | CONTRACT_MANAGER | SITE_ENGINEER      | FOREMAN                      | WORKER         |
-| ----------------------------------------------- | ------------------ | ------------------------------ | ---------------- | ------------------ | ---------------------------- | -------------- |
-| Konta, role, reset haseł                        | —                  | ✔                              | reset haseł (D2) | —                  | —                            | —              |
-| Słowniki, szablony etapów, katalog prac i normy | odczyt             | ✔                              | odczyt           | odczyt             | —                            | —              |
-| Budowy / kontrakty                              | odczyt (wszystkie) | tylko lista (do przypisań ról) | przypisane       | przypisane, odczyt | przypisane, odczyt           | —              |
-| Pakiety, etapy, blokady                         | odczyt             | —                              | przypisane       | przypisane         | przypisane: raport wykonania | własne, odczyt |
-| Zespół budowy                                   | odczyt             | —                              | przypisane       | przypisane         | przypisane, odczyt           | —              |
-| Wpisy czasu i przestoje                         | odczyt             | —                              | przypisane       | przypisane         | brygada (wg D5)              | własne         |
-| Koszty i budżet                                 | odczyt             | **—**                          | przypisane       | —                  | —                            | —              |
-| Akceptacje na poziomie firmy (§49)              | ✔                  | —                              | —                | —                  | —                            | —              |
-| Audit log                                       | —                  | odczyt (iteracja 5)            | —                | —                  | —                            | —              |
+| Obszar                                          | MANAGEMENT         | ADMIN                          | CONTRACT_MANAGER | SITE_ENGINEER      | FOREMAN                      | WORKER                         |
+| ----------------------------------------------- | ------------------ | ------------------------------ | ---------------- | ------------------ | ---------------------------- | ------------------------------ |
+| Konta i role                                    | —                  | ✔                              | —                | —                  | —                            | —                              |
+| Reset haseł                                     | —                  | ✔                              | zawężony ¹       | —                  | —                            | —                              |
+| Słowniki, szablony etapów, katalog prac i normy | odczyt             | ✔                              | odczyt           | odczyt             | —                            | —                              |
+| Budowy / kontrakty                              | odczyt (wszystkie) | tylko lista (do przypisań ról) | przypisane       | przypisane, odczyt | przypisane, odczyt           | swoje budowy, odczyt ³         |
+| Pakiety, etapy, blokady                         | odczyt             | —                              | przypisane       | przypisane         | przypisane: raport wykonania | swoje budowy, odczyt bez rbh ³ |
+| Zespół budowy                                   | odczyt             | —                              | przypisane       | przypisane         | przypisane, odczyt           | —                              |
+| Wpisy czasu i przestoje                         | odczyt             | —                              | przypisane       | przypisane         | brygada (wg D5)              | własne wpisy czasu ³           |
+| Koszty i budżet                                 | odczyt             | **—**                          | przypisane       | —                  | —                            | **—**                          |
+| Akceptacje na poziomie firmy (§49)              | ✔                  | —                              | —                | —                  | —                            | —                              |
+| Audit log ²                                     | pełny odczyt       | tylko `SYSTEM`                 | historia rekordu | historia rekordu   | —                            | —                              |
+
+¹ **Reset haseł przez `CONTRACT_MANAGER`** — tylko użytkownicy przypisani
+do jego budów (zespół budowy albo rola na tej budowie), którzy mają
+**wyłącznie** role spośród `WORKER`, `FOREMAN`, `SITE_ENGINEER`. Konta z
+rolą `MANAGEMENT`, `ADMIN` lub `CONTRACT_MANAGER` resetuje tylko `ADMIN`.
+Implementacja w iteracji 3/4 z testami odmowy (kierownik nie resetuje
+hasła innego kierownika, admina, zarządu ani pracownika spoza swoich budów).
+
+² **Audit log** — każde zdarzenie ma kategorię `SYSTEM` (konta, role,
+słowniki, konfiguracja), `OPERATIONAL` (realizacja, czas pracy, przestoje)
+albo `FINANCIAL` (koszty, budżety), żeby dało się filtrować dostęp:
+
+- `MANAGEMENT` — pełny odczyt, globalnie;
+- `ADMIN` — tylko `SYSTEM`; bez zdarzeń z danymi czasu pracy i kosztów;
+- `CONTRACT_MANAGER`, `SITE_ENGINEER` — tylko historia pojedynczego
+  rekordu w swoim zakresie (zakładka „Historia” na ekranie rekordu), bez
+  globalnego widoku; `SITE_ENGINEER` bez zdarzeń `FINANCIAL` (nie widzi kosztów).
+
+³ **`WORKER`** — zakres przez przypisanie do budowy (`SiteAssignment`).
+Czyta pakiety swoich budów: kod, nazwa, stan i własne godziny — **bez
+budżetów rbh i kosztów** (UI nie pokazuje mu `RbhBar` ani planu rbh).
+Zapisuje tylko własne wpisy czasu.
 
 Zatwierdzanie godzin zależy od D5; akceptacje firmowe dostaną konkretne
 progi razem z modułami (zamówienia, delegacje) — tu nie są ustalane.
+
+**Użytkownik bez ról** nie ma nawigacji ani dostępu do danych. Po
+zalogowaniu widzi tylko ekran „Konto nie ma przypisanej roli. Skontaktuj
+się z administratorem.” (`navigationFor([])` → profil `none`).
 
 **Nawigacja nie wynika z `SiteAssignment`.** Profil dolnego paska
 (docs/UI_STYLE.md §5) wybiera najwyższa rola systemowa:
@@ -198,7 +225,9 @@ granularnych dopiero, gdy pojawi się realna potrzeba (§3 „w przyszłości").
 
 - `at`, `actorUserId`, `action` (np. `time_entry.approve`),
   `entityType`, `entityId`, `siteId?`, `before` (JSONB), `after` (JSONB), `reason?`
-- indeks: (`entityType`, `entityId`), (`siteId`, `at`)
+- `category` (`SYSTEM | OPERATIONAL | FINANCIAL`) — ustalana w `audit.record()`
+  z rodzaju akcji, podstawa filtra dostępu (przypis ² macierzy)
+- indeks: (`entityType`, `entityId`), (`siteId`, `at`), (`category`, `at`)
 - docelowo rola bazodanowa aplikacji bez UPDATE/DELETE na tej tabeli
 
 **AppSetting** — `key`, `value` (JSONB) — parametry administracyjne (§2 pkt 11)
@@ -359,23 +388,23 @@ Każda iteracja kończy się: lint + typecheck + testy + build zielone,
 commit na osobnej gałęzi, krótkie podsumowanie (zmienione pliki,
 migracje, nowe zmienne środowiskowe).
 
-| #   | Iteracja                                                                                                                                                                                                                        | Milestone | Wynik do sprawdzenia                       |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------ |
-| 1   | Szkielet: Next.js, TS strict, ESLint (+ reguły importów), Prettier, Vitest, CI w GitHub Actions, `.env.example`                                                                                                                 | M0        | pusta strona, zielone CI                   |
-| 2   | PostgreSQL w Dockerze (`docker-compose.yml`), Prisma, pierwsza migracja, `seed.ts`, testowa baza dla testów                                                                                                                     | M0        | `npm run db:reset` działa                  |
-| 3   | Auth: logowanie loginem i hasłem, wylogowanie, sesja, wymuszona zmiana hasła tymczasowego, reset hasła przez admina                                                                                                             | M0        | logowanie kontem z seeda                   |
-| 4   | RBAC: role (z `MANAGEMENT`, D10), wiele ról na użytkownika, `RoleAssignment` z zakresem, macierz uprawnień, `authorize()` + testy odmów; admin nie widzi kosztów                                                                | M0        | testy: brygadzista nie widzi cudzej budowy |
-| 5   | Audit log: tabela, `audit.record()` w transakcji, podgląd dla admina (tylko odczyt)                                                                                                                                             | M0        | każda zmiana z iteracji 6+ zostawia ślad   |
-| 6   | Layout mobile-first: nawigacja zależna od roli (`src/app/navigation.ts`), manifest PWA, pusty pulpit per rola; **każda pozycja nawigacji bez gotowego ekranu prowadzi do zaślepki „Sekcja w przygotowaniu (Mx)”, nigdy do 404** | M0        | działa na telefonie                        |
-| 7   | Pracownicy i konta: CRUD pracowników razem z kontem (login + hasło tymczasowe), przypisanie ról                                                                                                                                 | M1        | admin zakłada brygadzistę                  |
-| 8   | Budowy: CRUD, unikalny numer budowy (w becie dowolny tekst), dane kontraktu, zespół budowy z historią                                                                                                                           | M1        | fikcyjna budowa z zespołem                 |
-| 9   | Etapy: szablony (admin) + etapy na budowie                                                                                                                                                                                      | M2        | budowa z etapami ze szablonu               |
-| 10  | Katalog prac + wersjonowane normy                                                                                                                                                                                               | M2        | zmiana normy nie rusza starych pakietów    |
-| 11  | Pakiety: CRUD, maszyna statusów (domena + testy), uczestnicy z historią, checklista, DoD                                                                                                                                        | M2        | pakiet przechodzi przez statusy            |
-| 12  | Blokady pakietów: zgłoszenie z przyczyną, zdjęcie blokady, przełożenie ludzi na inny pakiet                                                                                                                                     | M2        | blokada widoczna na liście budowy          |
-| 13  | Wpis czasu: formularz terenowy pracownika (data, pakiet, godziny, klasa czasu) + widok „dzień ekipy" brygadzisty                                                                                                                | M3        | wpis z telefonu w < 30 s                   |
-| 14  | Zatwierdzanie czasu: zatwierdź/odrzuć dzień ekipy, korekta po zatwierdzeniu z powodem → audit                                                                                                                                   | M3        | korekta widoczna w historii                |
-| 15  | Przestoje + plan vs wykonanie: rejestr przestojów, kategorie, rbh planowane vs rzeczywiste per pakiet/budowa, podstawowy pulpit                                                                                                 | M3        | pulpit fikcyjnej budowy z odchyleniami     |
+| #   | Iteracja                                                                                                                                                                                                                                                                                | Milestone | Wynik do sprawdzenia                       |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------ |
+| 1   | Szkielet: Next.js, TS strict, ESLint (+ reguły importów), Prettier, Vitest, CI w GitHub Actions, `.env.example`                                                                                                                                                                         | M0        | pusta strona, zielone CI                   |
+| 2   | PostgreSQL w Dockerze (`docker-compose.yml`), Prisma, pierwsza migracja, `seed.ts`, testowa baza dla testów                                                                                                                                                                             | M0        | `npm run db:reset` działa                  |
+| 3   | Auth: logowanie loginem i hasłem, wylogowanie, sesja, wymuszona zmiana hasła tymczasowego, reset hasła przez admina                                                                                                                                                                     | M0        | logowanie kontem z seeda                   |
+| 4   | RBAC: role (z `MANAGEMENT`, D10), wiele ról na użytkownika, `RoleAssignment` z zakresem, macierz uprawnień, `authorize()` + testy odmów; admin nie widzi kosztów; reset haseł przez kierownika zawężony (przypis ¹) z testem odmowy                                                     | M0        | testy: brygadzista nie widzi cudzej budowy |
+| 5   | Audit log: tabela, `audit.record()` w transakcji, `category` zdarzenia (`SYSTEM`/`OPERATIONAL`/`FINANCIAL`), podgląd wg macierzy: zarząd pełny, admin tylko `SYSTEM`                                                                                                                    | M0        | każda zmiana z iteracji 6+ zostawia ślad   |
+| 6   | Layout mobile-first: nawigacja zależna od roli (`src/app/navigation.ts`), manifest PWA, pusty pulpit per rola; konto bez ról → ekran „Konto nie ma przypisanej roli…”; **każda pozycja nawigacji bez gotowego ekranu prowadzi do zaślepki „Sekcja w przygotowaniu (Mx)”, nigdy do 404** | M0        | działa na telefonie                        |
+| 7   | Pracownicy i konta: CRUD pracowników razem z kontem (login + hasło tymczasowe), przypisanie ról                                                                                                                                                                                         | M1        | admin zakłada brygadzistę                  |
+| 8   | Budowy: CRUD, unikalny numer budowy (w becie dowolny tekst), dane kontraktu, zespół budowy z historią                                                                                                                                                                                   | M1        | fikcyjna budowa z zespołem                 |
+| 9   | Etapy: szablony (admin) + etapy na budowie                                                                                                                                                                                                                                              | M2        | budowa z etapami ze szablonu               |
+| 10  | Katalog prac + wersjonowane normy                                                                                                                                                                                                                                                       | M2        | zmiana normy nie rusza starych pakietów    |
+| 11  | Pakiety: CRUD, maszyna statusów (domena + testy), uczestnicy z historią, checklista, DoD                                                                                                                                                                                                | M2        | pakiet przechodzi przez statusy            |
+| 12  | Blokady pakietów: zgłoszenie z przyczyną, zdjęcie blokady, przełożenie ludzi na inny pakiet                                                                                                                                                                                             | M2        | blokada widoczna na liście budowy          |
+| 13  | Wpis czasu: formularz terenowy pracownika (data, pakiet, godziny, klasa czasu) + widok „dzień ekipy" brygadzisty                                                                                                                                                                        | M3        | wpis z telefonu w < 30 s                   |
+| 14  | Zatwierdzanie czasu: zatwierdź/odrzuć dzień ekipy, korekta po zatwierdzeniu z powodem → audit                                                                                                                                                                                           | M3        | korekta widoczna w historii                |
+| 15  | Przestoje + plan vs wykonanie: rejestr przestojów, kategorie, rbh planowane vs rzeczywiste per pakiet/budowa, podstawowy pulpit                                                                                                                                                         | M3        | pulpit fikcyjnej budowy z odchyleniami     |
 
 Po iteracji 15: przegląd z Tobą przed M4 (dziennik, zdjęcia → wtedy
 decyzja o storage).
