@@ -1,156 +1,121 @@
 # 3Concept Work — wygląd i zasady UI
 
-> Wersja: 0.1 / 2026-09-29 · Status: **propozycja do akceptacji**
-> Obowiązuje dla wszystkich ekranów od iteracji 6 (layout).
+> Wersja: 0.2 / 2026-09-29 · Status: **zaakceptowany**
+> Kierunek: **„Tabelka rysunkowa + nastawnia”** (zastępuje wersję 0.1 w stylu Win98).
+> Wzorzec wizualny: [`docs/ui/preview.html`](ui/preview.html) — otwórz w przeglądarce.
 
-## 1. Kierunek: „Windows 98, ale do pracy w terenie”
+## 1. Idea
 
-Bierzemy z Windows 98 **język wizualny**, nie kostium. Ten styl wygrywa tym, że
-na pierwszy rzut oka widać, co jest przyciskiem, co polem do wpisania, a co tylko
-tekstem. To dokładnie to, czego potrzebuje brygadzista na budowie z telefonem w
-jednej ręce (PROJECT.md §24).
+Aplikacja ma wyglądać jak **narzędzie inżynierskie**, a nie jak ogólny SaaS.
+Źródła języka wizualnego pochodzą ze świata 3Concept:
 
-Czego **nie** robimy:
-- nie emulujemy systemu: brak pulpitu z ikonami, przeciągania i minimalizowania okien,
-  menu Start, dźwięków, klepsydry,
-- nie kopiujemy 1:1 rozmiarów z 1998 roku (tekst 11 px, przyciski 23 px są za małe
-  na telefon),
-- nie używamy oryginalnych ikon, logo ani nazw Microsoftu.
-
-## 2. Zasada afordancji (najważniejsza)
-
-| Wygląd | Znaczenie |
+| Źródło | Co bierzemy |
 |---|---|
-| **Wypukłe** (jasna krawędź góra-lewo, ciemna dół-prawo) | da się kliknąć: przycisk, zakładka, element nawigacji |
-| **Wklęsłe** (odwrotnie) | tu wpisujesz albo tu są dane: pole tekstowe, lista, tabela, pasek postępu |
-| **Płaskie** na szarym tle | etykieta, opis, nagłówek — nic się nie stanie po kliknięciu |
-| **Granatowy pasek tytułu** | nazwa ekranu / okna, zawsze u góry |
+| Dokumentacja techniczna | papier z delikatną siatką, cienkie precyzyjne linie, **tabelka rysunkowa** w nagłówku ekranu |
+| Nastawnia / HMI (ISA-101) | spokojna, szara baza; **kolor tylko wtedy, gdy coś wymaga reakcji** |
+| Oznaczniki kablowe | kody (budowa, pakiet, zamówienie, WZ) jako **oznacznik**: ramka + mono |
+| Win98 | przycisk zawsze wygląda jak przycisk (ramka, pogrubiony dół, „siada” po wciśnięciu) |
 
-Każdy nowy komponent musi dać się przypisać do jednej z tych kategorii.
+## 2. Zasady nadrzędne
 
-## 3. Kolory (tokeny)
+1. **Normalnie = spokojnie.** Stany, w których wszystko gra, są szare/grafitowe.
+   Pomarańcz (alarm) i bursztyn (ostrzeżenie) pojawiają się tylko przy problemie.
+   Granat = akcja i „w toku”.
+2. **Najpierw to, co wymaga reakcji.** Na ekranach list i budowy nad treścią jest
+   pasek alarmu (blokady, przekroczenia), a lista ma filtr „Wymagają reakcji”.
+3. **Tabelka rysunkowa niesie dane**, nie jest ozdobą: budowa, obiekt, arkusz (nazwa
+   ekranu), ostatnia aktualizacja i kto jej dokonał.
+4. **Żadnych przycisków-duchów.** Każdy element klikalny ma ramkę albo wypełnienie.
+5. **Stan nigdy nie jest samym kolorem** — zawsze kolor + kształt lampki + tekst.
+6. **Telefon pierwszy.** Cele dotyku ≥ 48 px, główna akcja 56 px na całą szerokość.
+
+## 3. Tokeny
+
+### Kolory
 
 | Token | Wartość | Użycie |
 |---|---|---|
-| `--w-surface` | `#c0c0c0` | tło okien, paneli, przycisków |
-| `--w-light` | `#dfdfdf` | wewnętrzna jasna krawędź |
-| `--w-highlight` | `#ffffff` | zewnętrzna jasna krawędź, tło pól i list |
-| `--w-shadow` | `#808080` | wewnętrzna ciemna krawędź |
-| `--w-dark` | `#0a0a0a` | zewnętrzna ciemna krawędź, tekst |
-| `--w-title` → `--w-title-end` | `#000080` → `#1084d0` | pasek tytułu aktywnego okna (gradient poziomy) |
-| `--w-select` | `#000080` + tekst biały | zaznaczony wiersz, aktywna pozycja |
-| `--w-desktop` | `#008080` | tło za oknem na desktopie i na ekranie logowania |
+| `paper` | `#eef1f3` | tło aplikacji (z siatką 24 px w kolorze `grid`) |
+| `grid` | `#dfe4e8` | linie siatki tła |
+| `surface` | `#ffffff` | arkusze, karty, pola |
+| `ink` | `#18222b` | tekst, mocne ramki |
+| `ink-2` | `#56626d` | tekst pomocniczy, etykiety, stany neutralne |
+| `line` | `#c3cbd2` | ramki pól, podziały tabel |
+| `navy` / `navy-dark` / `navy-soft` | `#15325a` / `#0c2140` / `#e7edf5` | akcja główna, zaznaczenie, „w toku” |
+| `alarm` / `alarm-soft` | `#d9480f` / `#fff0e8` | blokada, przekroczenie, błąd |
+| `warn` / `warn-soft` | `#b86e00` / `#fff6e0` | ostrzeżenie: ponad plan, poprawki |
+| `ok` | `#2f7d45` | tylko lampka „odebrany” |
 
-Kolory stanów (zawsze **razem z tekstem i znakiem**, nigdy sam kolor):
+Kolor firmowy 3Concept (jeśli zostanie podany) zastępuje `navy`. Tryb ciemny: brak w MVP.
 
-| Stan pakietu | Kolor znacznika | Znak |
-|---|---|---|
-| planowany | szary `#808080` | ○ |
-| gotowy do rozpoczęcia | granat `#000080` | ▷ |
-| w toku | niebieski `#0050c8` | ▶ |
-| **zablokowany** | czerwony `#c00000`, biały tekst | ■ |
-| wstrzymany | ciemnożółty `#806000` | ‖ |
-| do odbioru | fiolet `#6a1b9a` | ? |
-| odebrany | zielony `#006400` | ✓ |
-| wymaga poprawek | pomarańcz `#b34700` | ! |
-| zamknięty | czarny | ✓✓ |
+### Typografia
 
-Tryb ciemny: **brak w MVP** (świadoma decyzja). Szare tło z czarnym tekstem ma
-bardzo wysoki kontrast i dobrze czyta się w słońcu. Do rozważenia później tryb
-„wysoki kontrast”.
+- Tekst: **IBM Plex Sans** (400/500/600/700), fallback `"Segoe UI", system-ui, sans-serif`.
+- Kody, liczby, etykiety sekcji: **IBM Plex Mono** (400/500/600), fallback `ui-monospace, Consolas, monospace`.
+- Obie z podzbiorem `latin-ext` (polskie znaki), ładowane przez `next/font/google` (self-hosting, bez zapytań do Google w runtime).
+- Rozmiary: bazowy 15 px desktop / 16 px pola formularzy na telefonie (brak zoomu iOS),
+  tytuł ekranu 19 px / 600, etykieta sekcji 11 px mono uppercase, `letter-spacing: .1em`.
+- Liczby (rbh, kwoty, daty w tabelach): mono + `tabular-nums`, wyrównanie do prawej.
 
-## 4. Typografia
+### Geometria
 
-- Tekst: `Tahoma, Verdana, "Segoe UI", system-ui, sans-serif` — ten sam charakter
-  co Win98, pełne polskie znaki, bez pobierania fontów.
-- Rozmiar bazowy: **16 px na telefonie, 14 px na desktopie**. Nigdy poniżej 13 px.
-- Pogrubienie tylko: pasek tytułu, nagłówki grup, domyślny przycisk.
-- Liczby w tabelach i rbh: `font-variant-numeric: tabular-nums`, wyrównanie do prawej.
-- Font pikselowy: **nie** dla treści. Ewentualnie tylko logo / ekran logowania (decyzja U-03).
+- Promień narożników: **0**. Cienie: **brak**.
+- Ramki: 1.5 px `ink` dla arkuszy i przycisków, 1 px `line` dla podziałów.
+- Przycisk: ramka 1.5 px + dolna 3 px; `:active` → przesunięcie 1 px, dolna 2 px.
+- Odstępy: skala 4 / 8 / 12 / 16 / 20 / 24 px.
 
-## 5. Rozmiary i geometria
+## 4. Komponenty (`src/components/ui/`)
 
-| Element | Telefon | Desktop |
-|---|---|---|
-| minimalny cel dotyku / kliknięcia | **48 px** | 32 px |
-| główna akcja ekranu (Zapisz, Zatwierdź) | 56 px, pełna szerokość | 32 px |
-| krawędź 3D | 2 px (1 + 1) | 2 px |
-| odstęp między polami formularza | 16 px | 12 px |
-
-- Zero zaokrągleń (`border-radius: 0` wszędzie).
-- Zero rozmytych cieni. Głębię dają wyłącznie krawędzie 3D.
-- Animacje: brak, poza paskiem postępu i ewentualnym miganiem kursora. `prefers-reduced-motion` respektowane.
-
-## 6. Układ ekranów
-
-**Telefon (priorytet):**
-- ekran = jedno okno na całą szerokość, bez marginesu „pulpitu”,
-- pasek tytułu: przycisk ◄ wstecz, nazwa ekranu, nazwa budowy pod spodem,
-- **pasek zadań na dole** jako główna nawigacja, 4 pozycje:
-  **Kolejka · Czas · Budowy · Menu**; zawartość zależy od roli,
-- główna akcja ekranu przyklejona nad paskiem zadań,
-- formularze w jednej kolumnie, grupy jako „groupbox” (ramka z podpisem).
-
-**Desktop:**
-- turkusowe tło, na nim jedno główne okno (bez przesuwania),
-- u góry okna pasek menu (Plik / Widok / Budowa / Pomoc) tylko tam, gdzie ma sens,
-- po lewej drzewo w stylu Eksploratora: budowy → etapy → pakiety,
-- po prawej widok szczegółów / tabela (ListView „Szczegóły”),
-- **pasek stanu** na dole okna: liczba rekordów, ostatnia aktualizacja, kto,
-- pasek zadań na dole ekranu jak na telefonie (spójność nawigacji).
-
-## 7. Komponenty (do zbudowania w `src/components/ui/`)
-
-| Komponent | Uwagi |
+| Komponent | Opis |
 |---|---|
-| `Window` | ramka 3D + `TitleBar` + treść + opcjonalny `StatusBar` |
-| `TitleBar` | gradient, tytuł, opcjonalnie przycisk wstecz / zamknij (× = wróć, nie zamyka aplikacji) |
-| `Button` | wypukły; wciśnięty = wklęsły; **domyślny** ma dodatkową czarną ramkę |
-| `TextField`, `Select`, `Textarea` | wklęsłe, białe tło |
-| `Checkbox`, `Radio` | wizualnie Win98, ale pole trafienia 48 px (cała linia z etykietą) |
-| `GroupBox` | `<fieldset>` z podpisem w ramce |
-| `Tabs` | zakładki jak w oknie właściwości |
-| `ListView` | desktop: tabela z sortowaniem po nagłówku; telefon: lista wierszy, każdy wiersz = cel dotyku |
-| `ProgressBar` | segmentowy; rbh wykonane / planowane; powyżej 100 % segmenty na czerwono + liczba |
-| `StatusChip` | kolor + znak + tekst stanu (tabela w §3) |
-| `Dialog` | modal z paskiem tytułu i ikoną (i / ! / ?) — tylko do potwierdzeń decyzji nieodwracalnych |
-| `StatusBar` | dolny pasek okna z polami wklęsłymi |
-| `Taskbar` | dolna nawigacja |
+| `Button` | warianty `primary` (granat), `default` (biały z ramką), stan `pressed` (toggle); min. 40 px desktop, 48 px telefon |
+| `TitleBlock` | tabelka rysunkowa: siatka komórek `{label, value, mono?}`; ramka 1.5 px |
+| `Tag` | oznacznik kodu: mono 600, ramka 1.5 px, „oczko” z lewej |
+| `Status` | lampka + tekst; warianty `neutral`, `run`, `done`, `warn`, `alarm` (warn/alarm z tłem) |
+| `AlarmBar` | pasek nad treścią: status + opis + akcja |
+| `RbhBar` | pasek wykonania rbh: skala 0–125 %, kreska planu na 100 %, nadwyżka w `alarm`; pod spodem % i różnica |
+| `OptionCard` | radio jako karta 56 px (wybór pakietu, rodzaju czasu) |
+| `Stepper` | − wartość + (godziny co 0,5 h) + szybkie wartości |
+| `TextField` | 48 px, ramka `line`, fokus granatowy |
+| `DataTable` | nagłówki mono uppercase, wiersz z problemem ma znacznik 4 px z lewej w kolorze stanu; na telefonie → lista |
+| `AppBar` (telefon) | wstecz + tytuł ekranu + `TitleBlock` pod spodem |
+| `BottomNav` (telefon) | 4 pozycje z ikoną i podpisem; aktywna: granat + belka 3 px u góry |
+| `SheetHeader` (desktop) | znak firmy + `TitleBlock` |
 
-Na komunikat po zapisie nie dajemy okienka dialogowego („Zapisano. OK”) — to
-dodatkowe kliknięcie. Wystarcza tekst w pasku stanu.
+Mapowanie stanów pakietu:
 
-## 8. Ikony
+| Stan | Wariant `Status` |
+|---|---|
+| planowany, gotowy, wstrzymany, do odbioru, zamknięty | `neutral` |
+| w toku | `run` |
+| odebrany | `done` |
+| wymaga poprawek, ponad plan rbh | `warn` |
+| zablokowany | `alarm` |
 
-- Styl pikselowy 16×16 / 32×32, ograniczona paleta.
-- Źródło: własne albo otwarty zestaw z licencją pozwalającą na użycie komercyjne
-  (np. Pixelarticons, MIT). **Nie** używamy ikon wyciętych z Windows.
-- Ikona zawsze z podpisem na telefonie. Same ikony tylko tam, gdzie jest tooltip i desktop.
+## 5. Układ
 
-## 9. Dostępność
+**Telefon:** `AppBar` z `TitleBlock` → treść w jednej kolumnie (sekcje z etykietą mono)
+→ przyklejony pasek głównej akcji z krótką informacją zwrotną pod przyciskiem
+→ `BottomNav` (Kolejka · Czas · Budowy · Menu, zależnie od roli).
 
-- Fokus: czarna kropkowana ramka jak w Win98, ale 2 px i z odstępem — ma być widać.
-- Kolor nigdy nie jest jedynym nośnikiem informacji (statusy mają znak i tekst).
-- Tekst „wyszarzony z wytłoczeniem” (disabled) tylko dla naprawdę nieaktywnych akcji,
-  nigdy dla danych, które trzeba przeczytać.
-- Kontrast min. WCAG AA; szare tło + czarny tekst ≈ 12:1.
+**Desktop:** tło `paper` z siatką → arkusz (`surface`, ramka `ink`) → `SheetHeader`
+→ `AlarmBar` (jeśli są problemy) → pasek narzędzi (filtry + akcja główna)
+→ `DataTable` → stopka z podsumowaniem (mono).
 
-## 10. Implementacja
+## 6. Ikony
 
-- Tokeny z §3 i §5 w `src/app/globals.css` w bloku `@theme` (Tailwind v4) —
-  zastępują obecne `--background` / `--foreground` i blok dark mode.
-- Komponenty własne. Nie dodajemy `98.css` ani podobnej paczki jako zależności
-  (rozmiary desktopowe z 1998, trudne do nadpisania), ale można się nią inspirować (MIT).
-- Komponenty shadcn/ui z planu — tylko jako logika (dostępność, klawiatura),
-  wygląd zawsze według tego dokumentu.
-- Każdy komponent ma stronę podglądu w trybie dev (`/dev/ui`), żeby sprawdzać
-  go na telefonie.
+Liniowe, 24 px, obrys 1.8 px, `currentColor`. Źródło: własne lub otwarty zestaw
+z licencją komercyjną (np. Lucide, ISC). Na telefonie zawsze z podpisem.
 
-## 11. Otwarte
+## 7. Dostępność
+
+- Fokus: obrys 2 px `navy` z odstępem 2 px, na każdym elemencie interaktywnym.
+- Kontrast min. WCAG AA (tekst `ink-2` na `surface` ≈ 6:1).
+- `prefers-reduced-motion`: wyłącza przesunięcie przycisku.
+
+## 8. Otwarte
 
 | ID | Pytanie |
 |---|---|
-| U-01 | Czy logo / kolor firmowy 3Concept ma gdzieś wejść (np. zamiast granatu w pasku tytułu)? |
-| U-02 | Tło desktopu: klasyczny turkus czy neutralny szary? |
-| U-03 | Font pikselowy na ekranie logowania / w logo — tak czy nie? |
-| U-04 | Nazwy na pasku zadań dla każdej roli (np. pracownik nie potrzebuje „Budowy”) |
+| U-01 | Kolor firmowy i logo 3Concept (zastąpią `navy` i znak „3C”) |
+| U-04 | Pozycje `BottomNav` dla każdej roli |
