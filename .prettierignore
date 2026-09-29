@@ -1,0 +1,9 @@
+.next/
+out/
+build/
+coverage/
+package-lock.json
+next-env.d.ts
+# Dokumenty wymagań edytowane poza repo — bez przeformatowywania.
+PROJECT.md
+AGENTS.md
