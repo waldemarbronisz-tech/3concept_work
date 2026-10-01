@@ -117,3 +117,31 @@ model RoleAssignment {
   @@index([siteId])
   @@map("role_assignment")
 }
+
+enum AuditCategory {
+  SYSTEM
+  OPERATIONAL
+  FINANCIAL
+}
+
+/// Ślad zmian — tylko INSERT (docelowo rola bazodanowa aplikacji bez UPDATE/DELETE).
+/// `actorUserId` bez relacji: aktorem może być też "system" (seed, zadania w tle).
+model AuditLog {
+  id          String        @id @default(cuid())
+  at          DateTime      @default(now()) @db.Timestamptz
+  actorUserId String
+  action      String
+  category    AuditCategory
+  entityType  String
+  entityId    String
+  siteId      String?
+  before      Json?
+  after       Json?
+  reason      String?
+
+  @@index([entityType, entityId])
+  @@index([siteId, at])
+  @@index([category, at])
+  @@index([at])
+  @@map("audit_log")
+}
