@@ -1,0 +1,20 @@
+// Model danych wg docs/PLAN_MVP.md §3. Konwencje: id = cuid, czas = timestamptz (UTC).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Parametry administracyjne (PROJECT.md §2 pkt 11): reguły, które mogą się zmieniać,
+/// nie są kodowane na sztywno.
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  @@map("app_setting")
+}
