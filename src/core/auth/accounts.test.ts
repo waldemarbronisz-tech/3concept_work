@@ -7,6 +7,7 @@ const mods = url
       db: (await import("@/core/db")).db,
       auth: (await import("./auth")).auth,
       accounts: await import("./accounts"),
+      SYSTEM_ACTOR: (await import("@/core/rbac")).SYSTEM_ACTOR,
     }
   : null;
 
@@ -29,13 +30,13 @@ describe.skipIf(!mods)("konta i logowanie", () => {
   });
 
   it("odrzuca nieprawidłowy login", async () => {
-    await expect(mods!.accounts.createAccount({ username: "Ąę Ż", name: "X" })).rejects.toThrow(
-      /login/i,
-    );
+    await expect(
+      mods!.accounts.createAccount(mods!.SYSTEM_ACTOR, { username: "Ąę Ż", name: "X" }),
+    ).rejects.toThrow(/login/i);
   });
 
   it("zakłada konto z hasłem tymczasowym i syntetycznym e-mailem", async () => {
-    const created = await mods!.accounts.createAccount({
+    const created = await mods!.accounts.createAccount(mods!.SYSTEM_ACTOR, {
       username,
       name: "Anna Nowak",
       temporaryPassword: "tymczasowe1",
@@ -64,7 +65,7 @@ describe.skipIf(!mods)("konta i logowanie", () => {
     await mods!.db.user.update({ where: { id: user.id }, data: { mustChangePassword: false } });
     expect(await mods!.db.session.count({ where: { userId: user.id } })).toBeGreaterThan(0);
 
-    const { temporaryPassword } = await mods!.accounts.resetPassword(user.id);
+    const { temporaryPassword } = await mods!.accounts.resetPassword(mods!.SYSTEM_ACTOR, user.id);
 
     expect(await mods!.db.session.count({ where: { userId: user.id } })).toBe(0);
     const after = await mods!.db.user.findUniqueOrThrow({ where: { id: user.id } });
@@ -75,7 +76,7 @@ describe.skipIf(!mods)("konta i logowanie", () => {
 
   it("zablokowane konto nie może się zalogować", async () => {
     const user = await mods!.db.user.findUniqueOrThrow({ where: { username } });
-    const { temporaryPassword } = await mods!.accounts.resetPassword(user.id);
+    const { temporaryPassword } = await mods!.accounts.resetPassword(mods!.SYSTEM_ACTOR, user.id);
     await mods!.db.user.update({ where: { id: user.id }, data: { isActive: false } });
     expect((await signIn(username, temporaryPassword)).status).toBe(403);
   });

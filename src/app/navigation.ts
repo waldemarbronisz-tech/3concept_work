@@ -9,13 +9,9 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import type { Role } from "@/core/rbac";
 
-/**
- * Role systemowe z docs/PLAN_MVP.md (RoleAssignment, D10). Typ przeniesie się
- * do core/rbac w iteracji 4.
- */
-export type Role =
-  "MANAGEMENT" | "ADMIN" | "CONTRACT_MANAGER" | "SITE_ENGINEER" | "FOREMAN" | "WORKER";
+export type { Role };
 
 /**
  * Profil dolnej nawigacji na telefonie (docs/UI_STYLE.md §5, U-04) — widok,

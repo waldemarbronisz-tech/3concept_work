@@ -22,19 +22,20 @@ model AppSetting {
 /// Konto logowania (Better Auth + plugin username). Bez e-maila (D2): `email` to
 /// adres syntetyczny `<login>@konto.3concept.local`, nigdzie nie pokazywany.
 model User {
-  id                 String    @id
+  id                 String           @id
   name               String
   email              String
-  emailVerified      Boolean   @default(false)
+  emailVerified      Boolean          @default(false)
   image              String?
-  createdAt          DateTime  @default(now()) @db.Timestamptz
-  updatedAt          DateTime  @updatedAt @db.Timestamptz
+  createdAt          DateTime         @default(now()) @db.Timestamptz
+  updatedAt          DateTime         @updatedAt @db.Timestamptz
   username           String?
   displayUsername    String?
-  mustChangePassword Boolean   @default(true)
-  isActive           Boolean   @default(true)
+  mustChangePassword Boolean          @default(true)
+  isActive           Boolean          @default(true)
   sessions           Session[]
   accounts           Account[]
+  roleAssignments    RoleAssignment[]
 
   @@unique([email])
   @@unique([username])
@@ -87,4 +88,32 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+/// Role systemowe (docs/PLAN_MVP.md, D10). Zakres daje `RoleAssignment.siteId`.
+enum Role {
+  MANAGEMENT
+  ADMIN
+  CONTRACT_MANAGER
+  SITE_ENGINEER
+  FOREMAN
+  WORKER
+}
+
+/// Przypisanie roli z zakresem i historią (§36.1). Użytkownik może mieć wiele ról.
+model RoleAssignment {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role
+  /// Budowa jako zakres; null = globalnie (tylko MANAGEMENT i ADMIN). Relacja do Site dojdzie w iteracji 8.
+  siteId    String?
+  validFrom DateTime  @default(now()) @db.Timestamptz
+  validTo   DateTime? @db.Timestamptz
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @updatedAt @db.Timestamptz
+
+  @@index([userId])
+  @@index([siteId])
+  @@map("role_assignment")
 }
