@@ -16,7 +16,9 @@ npm run db:reset       # migracje od zera + seed z danymi fikcyjnymi
 npm run dev            # http://localhost:3000
 ```
 
-W trybie development strona `/dev/ui` pokazuje komponenty UI.
+Seed zakłada konta testowe `admin` i `jkowalski` z hasłem tymczasowym
+`tymczasowe1` — przy pierwszym logowaniu trzeba je zmienić. W trybie
+development strona `/dev/ui` pokazuje komponenty UI.
 
 ## Baza danych
 
