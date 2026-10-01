@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { audit } from "@/core/audit";
 import { db } from "@/core/db";
 import {
   authorize,
@@ -68,11 +69,19 @@ export async function createAccount(actor: AuthorizationActor, input: CreateAcco
     accountId: user.id,
     password: await ctx.password.hash(temporaryPassword),
   });
-  if (input.roles?.length) {
-    await db.roleAssignment.createMany({
-      data: input.roles.map((r) => ({ userId: user.id, role: r.role, siteId: r.siteId ?? null })),
+  // Konto zakłada Better Auth poza transakcją; role i ślad audytu idą razem.
+  const grants = (input.roles ?? []).map((r) => ({ role: r.role, siteId: r.siteId ?? null }));
+  await db.$transaction(async (tx) => {
+    if (grants.length) {
+      await tx.roleAssignment.createMany({ data: grants.map((g) => ({ userId: user.id, ...g })) });
+    }
+    await audit.record(tx, actor, {
+      action: "account.create",
+      entityType: "user",
+      entityId: user.id,
+      after: { username, name: input.name, roles: grants },
     });
-  }
+  });
 
   return { userId: user.id, username, temporaryPassword };
 }
@@ -99,6 +108,54 @@ export async function resetPassword(actor: AuthorizationActor, userId: string) {
   await ctx.internalAdapter.updatePassword(userId, await ctx.password.hash(temporaryPassword));
   await ctx.internalAdapter.updateUser(userId, { mustChangePassword: true });
   await ctx.internalAdapter.deleteUserSessions(userId);
+  // Hasło (nawet tymczasowe) nigdy nie trafia do audytu.
+  await audit.record(db, actor, {
+    action: "account.resetPassword",
+    entityType: "user",
+    entityId: userId,
+    after: { mustChangePassword: true, sessionsRevoked: true },
+  });
 
   return { temporaryPassword };
+}
+
+/**
+ * Blokada konta: `isActive = false` i skasowanie wszystkich sesji w jednej transakcji.
+ * Od następnego żądania `getActor()` traktuje użytkownika jak niezalogowanego.
+ */
+export async function deactivateAccount(
+  actor: AuthorizationActor,
+  userId: string,
+  reason?: string,
+) {
+  authorize(actor, "accounts.manage");
+  if (actor.userId === userId) throw new Error("Nie można zablokować własnego konta.");
+
+  await db.$transaction(async (tx) => {
+    const before = await tx.user.update({ where: { id: userId }, data: { isActive: false } });
+    const { count } = await tx.session.deleteMany({ where: { userId } });
+    await audit.record(tx, actor, {
+      action: "account.deactivate",
+      entityType: "user",
+      entityId: userId,
+      before: { isActive: before.isActive },
+      after: { isActive: false, sessionsRevoked: count },
+      reason,
+    });
+  });
+}
+
+/** Odblokowanie konta (bez przywracania sesji — użytkownik loguje się ponownie). */
+export async function activateAccount(actor: AuthorizationActor, userId: string, reason?: string) {
+  authorize(actor, "accounts.manage");
+  await db.$transaction(async (tx) => {
+    await tx.user.update({ where: { id: userId }, data: { isActive: true } });
+    await audit.record(tx, actor, {
+      action: "account.activate",
+      entityType: "user",
+      entityId: userId,
+      after: { isActive: true },
+      reason,
+    });
+  });
 }

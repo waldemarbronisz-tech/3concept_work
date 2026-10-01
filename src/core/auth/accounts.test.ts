@@ -74,6 +74,28 @@ describe.skipIf(!mods)("konta i logowanie", () => {
     expect((await signIn(username, temporaryPassword)).status).toBe(200);
   });
 
+  it("blokada konta: sesje skasowane, getActor nie przepuszcza, admin nie zablokuje siebie", async () => {
+    const { resolveActorById } = await import("./actor");
+    const user = await mods!.db.user.findUniqueOrThrow({ where: { username } });
+    const { temporaryPassword } = await mods!.accounts.resetPassword(mods!.SYSTEM_ACTOR, user.id);
+    expect((await signIn(username, temporaryPassword)).status).toBe(200);
+    expect(await mods!.db.session.count({ where: { userId: user.id } })).toBe(1);
+    expect((await resolveActorById(user.id)).kind).toBe("ok");
+
+    await mods!.accounts.deactivateAccount(mods!.SYSTEM_ACTOR, user.id);
+
+    expect(await mods!.db.session.count({ where: { userId: user.id } })).toBe(0);
+    expect((await resolveActorById(user.id)).kind).toBe("blocked");
+    await expect(
+      mods!.accounts.deactivateAccount(
+        { userId: user.id, grants: mods!.SYSTEM_ACTOR.grants },
+        user.id,
+      ),
+    ).rejects.toThrow(/własnego/);
+    await mods!.accounts.activateAccount(mods!.SYSTEM_ACTOR, user.id);
+    expect((await resolveActorById(user.id)).kind).toBe("ok");
+  });
+
   it("zablokowane konto nie może się zalogować", async () => {
     const user = await mods!.db.user.findUniqueOrThrow({ where: { username } });
     const { temporaryPassword } = await mods!.accounts.resetPassword(mods!.SYSTEM_ACTOR, user.id);

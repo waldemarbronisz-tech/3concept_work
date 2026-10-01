@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { signOut } from "@/core/auth/actions";
 import { requireActor } from "@/core/auth/actor";
+import { can } from "@/core/rbac";
 
 /** Tymczasowy pulpit — właściwy layout z nawigacją wg roli dojdzie w iteracji 6. */
 export default async function Home() {
@@ -21,6 +22,11 @@ export default async function Home() {
           ? "brak — skontaktuj się z administratorem"
           : actor.roles.map((role) => <Tag key={role}>{role}</Tag>)}
       </p>
+      {(can(actor, "audit.readAll") || can(actor, "audit.readSystem")) && (
+        <Link href="/admin/audyt" className="font-mono text-sm text-navy underline">
+          Audyt
+        </Link>
+      )}
       <form action={signOut}>
         <Button type="submit">Wyloguj</Button>
       </form>
