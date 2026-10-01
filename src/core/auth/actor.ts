@@ -1,14 +1,26 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { loadGrants } from "@/core/rbac/grants";
+import { roles, type AuthorizationActor, type Role, type RoleGrant } from "@/core/rbac";
 import { auth, type SessionUser } from "./auth";
 
-/** Zalogowany użytkownik. Role dojdą w iteracji 4 (RBAC). */
-export type Actor = SessionUser;
+/** Zalogowany użytkownik z aktywnymi rolami — wejście dla `authorize()`. */
+export interface Actor extends AuthorizationActor {
+  userId: string;
+  user: SessionUser;
+  grants: RoleGrant[];
+  roles: Role[];
+}
+
+export async function toActor(user: SessionUser): Promise<Actor> {
+  const grants = await loadGrants(user.id);
+  return { userId: user.id, user, grants, roles: roles({ userId: user.id, grants }) };
+}
 
 /** Aktor z bieżącej sesji albo `null`. */
 export async function getActor(): Promise<Actor | null> {
   const session = await auth.api.getSession({ headers: await headers() });
-  return session?.user ?? null;
+  return session ? toActor(session.user) : null;
 }
 
 /**
@@ -18,6 +30,6 @@ export async function getActor(): Promise<Actor | null> {
 export async function requireActor(): Promise<Actor> {
   const actor = await getActor();
   if (!actor) redirect("/login");
-  if (actor.mustChangePassword) redirect("/zmien-haslo");
+  if (actor.user.mustChangePassword) redirect("/zmien-haslo");
   return actor;
 }

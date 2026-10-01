@@ -13,7 +13,13 @@ export default async function Home() {
       <h1 className="text-3xl font-semibold">3Concept Work</h1>
       <p className="text-ink-2">Wersja beta — dane testowe</p>
       <p className="flex items-center gap-2 text-sm">
-        Zalogowano: {actor.name} <Tag>{actor.username ?? "—"}</Tag>
+        Zalogowano: {actor.user.name} <Tag>{actor.user.username ?? "—"}</Tag>
+      </p>
+      <p className="flex flex-wrap items-center justify-center gap-2 text-sm text-ink-2">
+        Role:{" "}
+        {actor.roles.length === 0
+          ? "brak — skontaktuj się z administratorem"
+          : actor.roles.map((role) => <Tag key={role}>{role}</Tag>)}
       </p>
       <form action={signOut}>
         <Button type="submit">Wyloguj</Button>

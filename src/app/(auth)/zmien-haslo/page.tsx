@@ -8,5 +8,5 @@ export const metadata: Metadata = { title: "Zmiana hasła · 3Concept Work" };
 export default async function ChangePasswordPage() {
   const actor = await getActor();
   if (!actor) redirect("/login");
-  return <ChangePasswordForm name={actor.name} />;
+  return <ChangePasswordForm name={actor.user.name} />;
 }

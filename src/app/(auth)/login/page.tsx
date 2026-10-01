@@ -7,6 +7,6 @@ export const metadata: Metadata = { title: "Logowanie · 3Concept Work" };
 
 export default async function LoginPage() {
   const actor = await getActor();
-  if (actor) redirect(actor.mustChangePassword ? "/zmien-haslo" : "/");
+  if (actor) redirect(actor.user.mustChangePassword ? "/zmien-haslo" : "/");
   return <LoginForm />;
 }
