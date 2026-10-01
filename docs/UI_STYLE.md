@@ -1,8 +1,10 @@
 # 3Concept Work — wygląd i zasady UI
 
-> Wersja: 0.2 / 2026-09-29 · Status: **zaakceptowany**
+> Wersja: 0.3 / 2026-10-01 · Status: **zaakceptowany**
 > Kierunek: **„Tabelka rysunkowa + nastawnia”** (zastępuje wersję 0.1 w stylu Win98).
 > Wzorzec wizualny: [`docs/ui/preview.html`](ui/preview.html) — otwórz w przeglądarce.
+> Kolory w preview.html są **historyczne** (granat sprzed brandingu); obowiązują tokeny z §3.
+> Aktualny podgląd na żywo: `/dev/ui` w trybie development.
 
 ## 1. Idea
 
@@ -20,7 +22,7 @@ Aplikacja ma wyglądać jak **narzędzie inżynierskie**, a nie jak ogólny SaaS
 
 1. **Normalnie = spokojnie.** Stany, w których wszystko gra, są szare/grafitowe.
    Pomarańcz (alarm) i bursztyn (ostrzeżenie) pojawiają się tylko przy problemie.
-   Granat = akcja i „w toku”.
+   Grafit (`primary`) = akcja i „w toku”.
 2. **Najpierw to, co wymaga reakcji.** Na ekranach list i budowy nad treścią jest
    pasek alarmu (blokady, przekroczenia), a lista ma filtr „Wymagają reakcji”.
 3. **Tabelka rysunkowa niesie dane**, nie jest ozdobą: budowa, obiekt, arkusz (nazwa
@@ -35,20 +37,27 @@ Aplikacja ma wyglądać jak **narzędzie inżynierskie**, a nie jak ogólny SaaS
 
 ### Kolory
 
-| Token                              | Wartość                           | Użycie                                          |
-| ---------------------------------- | --------------------------------- | ----------------------------------------------- |
-| `paper`                            | `#eef1f3`                         | tło aplikacji (z siatką 24 px w kolorze `grid`) |
-| `grid`                             | `#dfe4e8`                         | linie siatki tła                                |
-| `surface`                          | `#ffffff`                         | arkusze, karty, pola                            |
-| `ink`                              | `#18222b`                         | tekst, mocne ramki                              |
-| `ink-2`                            | `#56626d`                         | tekst pomocniczy, etykiety, stany neutralne     |
-| `line`                             | `#c3cbd2`                         | ramki pól, podziały tabel                       |
-| `navy` / `navy-dark` / `navy-soft` | `#15325a` / `#0c2140` / `#e7edf5` | akcja główna, zaznaczenie, „w toku”             |
-| `alarm` / `alarm-soft`             | `#d9480f` / `#fff0e8`             | blokada, przekroczenie, błąd                    |
-| `warn` / `warn-soft`               | `#b86e00` / `#fff6e0`             | ostrzeżenie: ponad plan, poprawki               |
-| `ok`                               | `#2f7d45`                         | tylko lampka „odebrany”                         |
+| Token                                       | Wartość                           | Użycie                                                           |
+| ------------------------------------------- | --------------------------------- | ---------------------------------------------------------------- |
+| `paper`                                     | `#f1f1f2`                         | tło aplikacji (z siatką 24 px w kolorze `grid`)                  |
+| `grid`                                      | `#e3e4e5`                         | linie siatki tła                                                 |
+| `surface`                                   | `#ffffff`                         | arkusze, karty, pola                                             |
+| `ink`                                       | `#1f2022`                         | tekst, mocne ramki                                               |
+| `ink-2`                                     | `#66686b`                         | tekst pomocniczy, etykiety, stany neutralne                      |
+| `line`                                      | `#c9cacc`                         | ramki pól, podziały tabel                                        |
+| `primary` / `primary-dark` / `primary-soft` | `#525355` / `#3d3e40` / `#eeeff0` | grafit z logo (U-01): akcja główna, zaznaczenie, „w toku”, fokus |
+| `alarm` / `alarm-soft`                      | `#d9480f` / `#fff0e8`             | blokada, przekroczenie, błąd                                     |
+| `warn` / `warn-soft`                        | `#b86e00` / `#fff6e0`             | ostrzeżenie: ponad plan, poprawki                                |
+| `ok`                                        | `#2f7d45`                         | tylko lampka „odebrany”                                          |
+| `brand-graphite` / `brand-red`              | `#525355` / `#dc1b47`             | **tylko logo i znak marki**                                      |
 
-Kolor firmowy 3Concept (jeśli zostanie podany) zastępuje `navy`. Tryb ciemny: brak w MVP.
+Neutralne są bez niebieskiego odcienia (grafity z logo). **Karmin `brand-red` występuje
+wyłącznie w logo i znaku** — nigdy w przyciskach, statusach, zaznaczeniach, fokusie ani
+nawigacji. Zasada nastawni: czerwień na ekranie oznacza alarm, więc marka nie może z nią
+konkurować. Tryb ciemny: brak w MVP.
+
+Kontrast (WCAG AA, 2026-10-01): `ink-2` na `surface` 5,6:1 · biały na `primary` 7,7:1 ·
+`primary` na `primary-soft` 6,7:1 · `ink` na `surface` 16,3:1.
 
 ### Typografia
 
@@ -70,7 +79,7 @@ Kolor firmowy 3Concept (jeśli zostanie podany) zastępuje `navy`. Tryb ciemny: 
 
 | Komponent               | Opis                                                                                                                                                              |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Button`                | warianty `primary` (granat), `default` (biały z ramką), stan `pressed` (toggle); 48 px przy `pointer: coarse`, 40 px przy `pointer: fine`; akcja główna 56 px     |
+| `Button`                | warianty `primary` (grafit), `default` (biały z ramką), stan `pressed` (toggle); 48 px przy `pointer: coarse`, 40 px przy `pointer: fine`; akcja główna 56 px     |
 | `TitleBlock`            | tabelka rysunkowa: siatka komórek `{label, value, mono?}`; ramka 1.5 px                                                                                           |
 | `Tag`                   | oznacznik kodu: mono 600, ramka 1.5 px, „oczko” z lewej                                                                                                           |
 | `Status`                | lampka + tekst; warianty `neutral`, `run`, `done`, `warn`, `alarm` (warn/alarm z tłem)                                                                            |
@@ -78,11 +87,11 @@ Kolor firmowy 3Concept (jeśli zostanie podany) zastępuje `navy`. Tryb ciemny: 
 | `RbhBar`                | pasek wykonania rbh: skala 0–125 %, kreska planu na 100 %, nadwyżka w `alarm`; pod spodem % i różnica; przy planie 0 pusty z opisem „bez planu rbh”, bez nadwyżki |
 | `OptionCard`            | radio jako karta 56 px (wybór pakietu, rodzaju czasu)                                                                                                             |
 | `Stepper`               | − wartość + (godziny co 0,5 h) + szybkie wartości                                                                                                                 |
-| `TextField`             | 48 px, ramka `line`, fokus granatowy                                                                                                                              |
+| `TextField`             | 48 px, ramka `line`, fokus `primary`                                                                                                                              |
 | `DataTable`             | nagłówki mono uppercase, wiersz z problemem ma znacznik 4 px z lewej w kolorze stanu; na telefonie → lista                                                        |
 | `AppBar` (telefon)      | wstecz + tytuł ekranu + `TitleBlock` pod spodem                                                                                                                   |
-| `BottomNav` (telefon)   | 4 pozycje z ikoną i podpisem; aktywna: granat + belka 3 px u góry; pozycje wg roli z `src/app/navigation.ts` (§5)                                                 |
-| `SheetHeader` (desktop) | znak firmy + `TitleBlock`                                                                                                                                         |
+| `BottomNav` (telefon)   | 4 pozycje z ikoną i podpisem; aktywna: `primary` + belka 3 px u góry; pozycje wg roli z `src/app/navigation.ts` (§5)                                              |
+| `SheetHeader` (desktop) | znak 3Concept (`3concept-mark.png`, 28 px) + `TitleBlock`                                                                                                         |
 
 Mapowanie stanów pakietu (`packageStatusView` w `src/components/ui/package-status.ts`):
 
@@ -136,14 +145,19 @@ z licencją komercyjną (np. Lucide, ISC). Na telefonie zawsze z podpisem.
 
 ## 7. Dostępność
 
-- Fokus: obrys 2 px `navy` z odstępem 2 px, na każdym elemencie interaktywnym.
-- Kontrast min. WCAG AA (tekst `ink-2` na `surface` ≈ 6:1).
+- Fokus: obrys 2 px `primary` z odstępem 2 px, na każdym elemencie interaktywnym.
+- Kontrast min. WCAG AA (wartości w §3).
 - `prefers-reduced-motion`: wyłącza przesunięcie przycisku.
 
 ## 8. Otwarte
 
-| ID   | Pytanie                                                     |
-| ---- | ----------------------------------------------------------- |
-| U-01 | Kolor firmowy i logo 3Concept (zastąpią `navy` i znak „3C”) |
+Brak otwartych pytań.
 
-Rozstrzygnięte: **U-04** — pozycje `BottomNav` dla ról (§5).
+Rozstrzygnięte:
+
+- **U-01** (2026-10-01) — grafit z logo jako `primary`, karmin tylko w marce (§3). Logo:
+  `public/brand/3concept-logo.png` (ekran logowania, max 240 px) i `3concept-mark.png`
+  (`SheetHeader`, wys. 28 px; favicon i ikony PWA generowane przez
+  `scripts/generate-icons.mjs`). `AppBar` na telefonie bez logo. Docelowo logo w wektorze
+  (SVG) — podmiana pliku, bez zmian w kodzie.
+- **U-04** — pozycje `BottomNav` dla ról (§5).

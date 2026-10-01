@@ -19,7 +19,10 @@ export function RbhBar({ actual, plan, className }: RbhBarProps) {
   return (
     <div className={cn("min-w-0", className)}>
       <div aria-hidden className="relative h-3 w-full border border-line bg-surface">
-        <span className="absolute inset-y-0 left-0 bg-navy" style={{ width: `${g.fillWidth}%` }} />
+        <span
+          className="absolute inset-y-0 left-0 bg-primary"
+          style={{ width: `${g.fillWidth}%` }}
+        />
         {g.overWidth > 0 && (
           <span
             className="absolute inset-y-0 bg-alarm"

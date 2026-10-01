@@ -28,9 +28,9 @@ export function Button({
         "disabled:cursor-default disabled:border-line disabled:bg-surface disabled:text-line",
         size === "lg" ? "min-h-14 text-[17px]" : "min-h-12 text-[15px] pointer-fine:min-h-10",
         variant === "primary"
-          ? "border-navy-dark bg-navy font-semibold text-white"
+          ? "border-primary-dark bg-primary font-semibold text-white"
           : pressed
-            ? "border-navy bg-navy-soft font-semibold text-navy"
+            ? "border-primary bg-primary-soft font-semibold text-primary"
             : "border-ink bg-surface text-ink",
         className,
       )}
