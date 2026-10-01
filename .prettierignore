@@ -4,6 +4,8 @@ build/
 coverage/
 package-lock.json
 next-env.d.ts
+src/generated/
+prisma/migrations/
 # Dokumenty wymagań edytowane poza repo — bez przeformatowywania.
 PROJECT.md
 AGENTS.md
