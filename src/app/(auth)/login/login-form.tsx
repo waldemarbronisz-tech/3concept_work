@@ -7,9 +7,9 @@ import { Status } from "@/components/ui/Status";
 import { TextField } from "@/components/ui/TextField";
 import { authClient } from "@/core/auth/client";
 
-export function LoginForm() {
+export function LoginForm({ notice }: { notice?: string }) {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(notice ?? null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {

@@ -71,6 +71,29 @@ describe("macierz uprawnień (PLAN_MVP §3)", () => {
     expect(can(managerA, "costs.manage", { siteId: "B" })).toBe(false);
   });
 
+  it("czas pracy (D3): każdy wpisuje własne godziny, nikt za innych", () => {
+    for (const a of [worker, foremanA, engineerA, managerA]) {
+      expect(can(a, "time.write", { ownerUserId: "u1" })).toBe(true);
+      expect(can(a, "time.write", { ownerUserId: "u2", siteId: "A" })).toBe(false);
+    }
+    expect(can(management, "time.write", { ownerUserId: "u1" })).toBe(false);
+  });
+
+  it("brygadzista zatwierdza dzień ekipy na swojej budowie, nie na cudzej", () => {
+    expect(can(foremanA, "time.approve", { siteId: "A" })).toBe(true);
+    expect(can(foremanA, "time.approve", { siteId: "B" })).toBe(false);
+    expect(can(foremanA, "time.manage", { siteId: "A" })).toBe(false); // korekta po zatwierdzeniu — nie
+  });
+
+  it("inżynier i kierownik zatwierdzają i korygują na swoich budowach; pracownik nie", () => {
+    for (const a of [engineerA, managerA]) {
+      expect(can(a, "time.approve", { siteId: "A" })).toBe(true);
+      expect(can(a, "time.manage", { siteId: "A" })).toBe(true);
+      expect(can(a, "time.approve", { siteId: "B" })).toBe(false);
+    }
+    expect(can(worker, "time.approve", { siteId: "A" })).toBe(false);
+  });
+
   it("pracownik: tylko własne wpisy czasu i podstawowe dane pakietów", () => {
     expect(can(worker, "time.write", { ownerUserId: "u1" })).toBe(true);
     expect(can(worker, "time.write", { ownerUserId: "u2" })).toBe(false);

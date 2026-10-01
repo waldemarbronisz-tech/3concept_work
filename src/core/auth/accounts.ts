@@ -102,3 +102,23 @@ export async function resetPassword(actor: AuthorizationActor, userId: string) {
 
   return { temporaryPassword };
 }
+
+/**
+ * Blokada konta: `isActive = false` i skasowanie wszystkich sesji w jednej transakcji.
+ * Od następnego żądania `getActor()` traktuje użytkownika jak niezalogowanego.
+ */
+export async function deactivateAccount(actor: AuthorizationActor, userId: string) {
+  authorize(actor, "accounts.manage");
+  if (actor.userId === userId) throw new Error("Nie można zablokować własnego konta.");
+
+  await db.$transaction(async (tx) => {
+    await tx.user.update({ where: { id: userId }, data: { isActive: false } });
+    await tx.session.deleteMany({ where: { userId } });
+  });
+}
+
+/** Odblokowanie konta (bez przywracania sesji — użytkownik loguje się ponownie). */
+export async function activateAccount(actor: AuthorizationActor, userId: string) {
+  authorize(actor, "accounts.manage");
+  await db.user.update({ where: { id: userId }, data: { isActive: true } });
+}

@@ -84,6 +84,21 @@ describe.skipIf(!mods)("role w bazie", () => {
     );
   });
 
+  it("baza odrzuca niepoprawny zakres roli (CHECK role_assignment_scope_check)", async () => {
+    const { userId } = await mods!.accounts.createAccount(mods!.rbac.SYSTEM_ACTOR, {
+      username: `${prefix}.check`,
+      name: "Check",
+    });
+    const create = (role: "ADMIN" | "MANAGEMENT" | "FOREMAN" | "WORKER", siteId: string | null) =>
+      mods!.db.roleAssignment.create({ data: { userId, role, siteId } });
+
+    await expect(create("ADMIN", "site-a")).rejects.toThrow(/check/i);
+    await expect(create("MANAGEMENT", "site-a")).rejects.toThrow(/check/i);
+    await expect(create("FOREMAN", null)).rejects.toThrow(/check/i);
+    await expect(create("WORKER", null)).resolves.toBeTruthy();
+    await expect(create("WORKER", "site-a")).resolves.toBeTruthy();
+  });
+
   it("pracownik nie założy konta", async () => {
     const worker = { userId: "x", grants: [{ role: "WORKER" as const, siteId: null }] };
     await expect(

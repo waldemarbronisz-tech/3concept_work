@@ -26,10 +26,11 @@ export type Permission =
   // zespół budowy
   | "team.read"
   | "team.manage"
-  // wpisy czasu i przestoje
+  // wpisy czasu i przestoje (D3: każdy wpisuje własne godziny; wpis za kogoś — patrz D5)
   | "time.read"
-  | "time.write"
-  | "time.manage"
+  | "time.write" // własne wpisy
+  | "time.approve" // zatwierdzanie dnia ekipy na budowie
+  | "time.manage" // korekta po zatwierdzeniu, z powodem
   // koszty i budżet
   | "costs.read"
   | "costs.manage"
@@ -74,6 +75,8 @@ export const PERMISSIONS: Record<Role, Partial<Record<Permission, Scope>>> = {
     "team.read": "site",
     "team.manage": "site",
     "time.read": "site",
+    "time.write": "own",
+    "time.approve": "site",
     "time.manage": "site",
     "costs.read": "site",
     "costs.manage": "site",
@@ -88,6 +91,8 @@ export const PERMISSIONS: Record<Role, Partial<Record<Permission, Scope>>> = {
     "team.read": "site",
     "team.manage": "site",
     "time.read": "site",
+    "time.write": "own",
+    "time.approve": "site",
     "time.manage": "site",
     "audit.readRecord": "site",
   },
@@ -97,8 +102,9 @@ export const PERMISSIONS: Record<Role, Partial<Record<Permission, Scope>>> = {
     "packages.read": "site",
     "packages.report": "site",
     "team.read": "site",
-    "time.read": "site", // brygada; zatwierdzanie wg D5
-    "time.write": "site",
+    "time.read": "site", // godziny brygady
+    "time.write": "own", // swoje godziny jak każdy (D3); nie wpisuje za innych
+    "time.approve": "site", // zatwierdza dzień ekipy na swojej budowie
   },
   WORKER: {
     // Zakres „swoje budowy” dojdzie z SiteAssignment (iteracja 8); do tego czasu `own`.
