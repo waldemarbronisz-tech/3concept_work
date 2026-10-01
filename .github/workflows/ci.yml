@@ -22,6 +22,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://app:app@localhost:5432/c3work_test
       DATABASE_URL_TEST: postgresql://app:app@localhost:5432/c3work_test
+      BETTER_AUTH_SECRET: ci-only-secret-3concept-work-0123456789abcdef
+      BETTER_AUTH_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
