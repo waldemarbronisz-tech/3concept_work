@@ -10,7 +10,7 @@ export interface StatusProps {
 
 const BOX: Record<StatusVariant, string> = {
   neutral: "text-ink-2",
-  run: "font-medium text-navy",
+  run: "font-medium text-primary",
   done: "text-ink-2",
   warn: "bg-warn-soft py-0.5 pr-2 pl-1.5 font-semibold text-warn shadow-[inset_0_0_0_1px_var(--color-warn)]",
   alarm: "bg-alarm py-0.5 pr-2 pl-1.5 font-semibold text-surface",
@@ -18,7 +18,7 @@ const BOX: Record<StatusVariant, string> = {
 
 const LAMP: Record<StatusVariant, string> = {
   neutral: "border-ink-2",
-  run: "border-navy bg-navy",
+  run: "border-primary bg-primary",
   done: "border-ok bg-ok",
   warn: "border-warn bg-warn",
   alarm: "border-surface bg-surface",

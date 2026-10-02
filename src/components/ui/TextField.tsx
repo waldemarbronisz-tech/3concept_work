@@ -6,7 +6,7 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
-/** Pole 48 px, tekst 16 px (bez zoomu na iOS), fokus granatowy. */
+/** Pole 48 px, tekst 16 px (bez zoomu na iOS), fokus w kolorze primary. */
 export function TextField({ id, label, className, ...input }: TextFieldProps) {
   return (
     <div className={cn("min-w-0", className)}>
@@ -18,7 +18,7 @@ export function TextField({ id, label, className, ...input }: TextFieldProps) {
       </label>
       <input
         id={id}
-        className="min-h-12 w-full border-[1.5px] border-line bg-surface px-3 py-2.5 text-base text-ink placeholder:text-ink-2 focus:border-navy"
+        className="min-h-12 w-full border-[1.5px] border-line bg-surface px-3 py-2.5 text-base text-ink placeholder:text-ink-2 focus:border-primary"
         {...input}
       />
     </div>

@@ -31,7 +31,7 @@ export default async function Home() {
         <Button type="submit">Wyloguj</Button>
       </form>
       {process.env.NODE_ENV === "development" && (
-        <Link href="/dev/ui" className="mt-4 font-mono text-sm text-navy underline">
+        <Link href="/dev/ui" className="mt-4 font-mono text-sm text-primary underline">
           Podgląd komponentów UI
         </Link>
       )}
