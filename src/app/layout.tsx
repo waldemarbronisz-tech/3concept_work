@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +19,14 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "3Concept Work",
   description: "Platforma operacyjna 3Concept",
+  applicationName: "3Concept Work",
+  appleWebApp: { capable: true, title: "3C Work", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#525355",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
