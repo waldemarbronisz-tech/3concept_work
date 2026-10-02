@@ -22,6 +22,31 @@ const ACCOUNTS: Array<{
     roles: [{ role: "ADMIN" }],
   },
   {
+    username: "zarzad",
+    name: "Zarząd 3Concept",
+    temporaryPassword: "tymczasowe1",
+    roles: [{ role: "MANAGEMENT" }],
+  },
+  // Budowa „075” jest na razie tylko identyfikatorem (tabela Site dojdzie w iteracji 8).
+  {
+    username: "kierownik",
+    name: "Marek Nowak",
+    temporaryPassword: "tymczasowe1",
+    roles: [{ role: "CONTRACT_MANAGER", siteId: "075" }],
+  },
+  {
+    username: "inzynier",
+    name: "Anna Wiśniewska",
+    temporaryPassword: "tymczasowe1",
+    roles: [{ role: "SITE_ENGINEER", siteId: "075" }],
+  },
+  {
+    username: "brygadzista",
+    name: "Piotr Zieliński",
+    temporaryPassword: "tymczasowe1",
+    roles: [{ role: "FOREMAN", siteId: "075" }, { role: "WORKER" }],
+  },
+  {
     username: "jkowalski",
     name: "Jan Kowalski",
     temporaryPassword: "tymczasowe1",

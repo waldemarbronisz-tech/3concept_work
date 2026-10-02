@@ -15,7 +15,7 @@ export interface BottomNavProps {
   currentHref?: string;
 }
 
-/** Nawigacja na telefonie: ikona + podpis; aktywna pozycja granatowa z belką u góry. */
+/** Nawigacja na telefonie: ikona + podpis; aktywna pozycja w kolorze primary z belką u góry. */
 export function BottomNav({ items, currentHref }: BottomNavProps) {
   return (
     <nav aria-label="Nawigacja" className="border-t-[1.5px] border-ink bg-surface">
@@ -33,7 +33,7 @@ export function BottomNav({ items, currentHref }: BottomNavProps) {
                 className={cn(
                   "relative flex min-h-15 flex-col items-center justify-center gap-1 text-[12.5px]",
                   current
-                    ? "font-semibold text-navy before:absolute before:inset-x-[18%] before:-top-[1.5px] before:h-[3px] before:bg-navy"
+                    ? "font-semibold text-primary before:absolute before:inset-x-[18%] before:-top-[1.5px] before:h-[3px] before:bg-primary"
                     : "text-ink-2",
                 )}
               >
