@@ -1,6 +1,6 @@
 # 3Concept Work — wygląd i zasady UI
 
-> Wersja: 0.3 / 2026-10-01 · Status: **zaakceptowany**
+> Wersja: 0.3.1 / 2026-10-01 · Status: **zaakceptowany**
 > Kierunek: **„Tabelka rysunkowa + nastawnia”** (zastępuje wersję 0.1 w stylu Win98).
 > Wzorzec wizualny: [`docs/ui/preview.html`](ui/preview.html) — otwórz w przeglądarce.
 > Kolory w preview.html są **historyczne** (granat sprzed brandingu); obowiązują tokeny z §3.
@@ -46,8 +46,8 @@ Aplikacja ma wyglądać jak **narzędzie inżynierskie**, a nie jak ogólny SaaS
 | `ink-2`                                     | `#66686b`                         | tekst pomocniczy, etykiety, stany neutralne                      |
 | `line`                                      | `#c9cacc`                         | ramki pól, podziały tabel                                        |
 | `primary` / `primary-dark` / `primary-soft` | `#525355` / `#3d3e40` / `#eeeff0` | grafit z logo (U-01): akcja główna, zaznaczenie, „w toku”, fokus |
-| `alarm` / `alarm-soft`                      | `#d9480f` / `#fff0e8`             | blokada, przekroczenie, błąd                                     |
-| `warn` / `warn-soft`                        | `#b86e00` / `#fff6e0`             | ostrzeżenie: ponad plan, poprawki                                |
+| `alarm` / `alarm-soft`                      | `#c0400b` / `#fff0e8`             | blokada, przekroczenie, błąd                                     |
+| `warn` / `warn-soft`                        | `#945800` / `#fff6e0`             | ostrzeżenie: ponad plan, poprawki                                |
 | `ok`                                        | `#2f7d45`                         | tylko lampka „odebrany”                                          |
 | `brand-graphite` / `brand-red`              | `#525355` / `#dc1b47`             | **tylko logo i znak marki**                                      |
 
@@ -56,8 +56,20 @@ wyłącznie w logo i znaku** — nigdy w przyciskach, statusach, zaznaczeniach, 
 nawigacji. Zasada nastawni: czerwień na ekranie oznacza alarm, więc marka nie może z nią
 konkurować. Tryb ciemny: brak w MVP.
 
-Kontrast (WCAG AA, 2026-10-01): `ink-2` na `surface` 5,6:1 · biały na `primary` 7,7:1 ·
-`primary` na `primary-soft` 6,7:1 · `ink` na `surface` 16,3:1.
+Kontrast (WCAG AA, próg 4,5:1; pilnuje tego test `src/app/tokens.test.ts`, który czyta
+wartości z `globals.css`):
+
+| Para                        | Kontrast |
+| --------------------------- | -------- |
+| `ink` na `surface`          | 16,3:1   |
+| `ink-2` na `surface`        | 5,6:1    |
+| biały na `primary`          | 7,7:1    |
+| `primary` na `primary-soft` | 6,7:1    |
+| biały na `alarm`            | 5,3:1    |
+| `alarm` na `alarm-soft`     | 4,7:1    |
+| `warn` na `warn-soft`       | 5,3:1    |
+| `warn` na `surface`         | 5,8:1    |
+| `ok` na `surface`           | 5,1:1    |
 
 ### Typografia
 
