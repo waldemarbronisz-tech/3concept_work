@@ -1,7 +1,7 @@
 # 3Concept Work --- PROJECT.md
 
 > Dokument główny projektu dla Claude Code\
-> Wersja: 0.1 / 2026-09-28\
+> Wersja: 0.2 / 2026-09-29\
 > Status: koncepcja i wymagania startowe\
 > Cel: budowa poważnej, modułowej platformy firmowej 3Concept do
 > zarządzania realizacją, pracownikami, czasem, dokumentami,
