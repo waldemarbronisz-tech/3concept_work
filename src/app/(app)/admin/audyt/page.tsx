@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AppBar } from "@/components/ui/AppBar";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
-import { SheetHeader } from "@/components/ui/SheetHeader";
 import { Tag } from "@/components/ui/Tag";
 import { listAuditLog } from "@/core/audit";
 import { requireActor } from "@/core/auth/actor";
@@ -48,15 +47,16 @@ export default async function AuditPage() {
   const scope = can(actor, "audit.readAll") ? "wszystkie zdarzenia" : "tylko SYSTEM";
 
   return (
-    <main className="p-4">
-      <div className="mx-auto max-w-[1280px] border-[1.5px] border-ink bg-surface">
-        <SheetHeader
-          cells={[
-            { label: "Arkusz", value: "Audyt" },
-            { label: "Zakres", value: scope },
-            { label: "Wpisów", value: String(entries.length), mono: true },
-          ]}
-        />
+    <>
+      <AppBar
+        title="Audyt zmian"
+        backHref="/"
+        titleBlock={[
+          { label: "Zakres", value: scope },
+          { label: "Wpisów", value: String(entries.length), mono: true },
+        ]}
+      />
+      <main className="flex flex-1 flex-col pt-3">
         <DataTable
           caption="Ślad zmian"
           columns={COLUMNS}
@@ -64,12 +64,7 @@ export default async function AuditPage() {
           rowKey={(e) => e.id}
           rowTone={(e) => (e.category === "FINANCIAL" ? "warn" : undefined)}
         />
-        <div className="px-4 py-2.5 font-mono text-xs text-ink-2">
-          <Link href="/" className="underline">
-            ← Pulpit
-          </Link>
-        </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

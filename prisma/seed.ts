@@ -13,16 +13,19 @@ const ACCOUNTS: Array<{
   username: string;
   name: string;
   temporaryPassword: string;
+  position: string;
   roles: Array<{ role: Role; siteId?: string }>;
 }> = [
   {
     username: "admin",
+    position: "administrator systemu",
     name: "Administrator",
     temporaryPassword: "tymczasowe1",
     roles: [{ role: "ADMIN" }],
   },
   {
     username: "zarzad",
+    position: "zarząd",
     name: "Zarząd 3Concept",
     temporaryPassword: "tymczasowe1",
     roles: [{ role: "MANAGEMENT" }],
@@ -30,24 +33,28 @@ const ACCOUNTS: Array<{
   // Budowa „075” jest na razie tylko identyfikatorem (tabela Site dojdzie w iteracji 8).
   {
     username: "kierownik",
+    position: "kierownik kontraktu",
     name: "Marek Nowak",
     temporaryPassword: "tymczasowe1",
     roles: [{ role: "CONTRACT_MANAGER", siteId: "075" }],
   },
   {
     username: "inzynier",
+    position: "inżynier budowy",
     name: "Anna Wiśniewska",
     temporaryPassword: "tymczasowe1",
     roles: [{ role: "SITE_ENGINEER", siteId: "075" }],
   },
   {
     username: "brygadzista",
+    position: "brygadzista",
     name: "Piotr Zieliński",
     temporaryPassword: "tymczasowe1",
     roles: [{ role: "FOREMAN", siteId: "075" }, { role: "WORKER" }],
   },
   {
     username: "jkowalski",
+    position: "elektromonter",
     name: "Jan Kowalski",
     temporaryPassword: "tymczasowe1",
     roles: [{ role: "WORKER" }],
@@ -70,6 +77,18 @@ async function main() {
         `Seed: konto ${account.username} (hasło tymczasowe: ${account.temporaryPassword})`,
       );
     }
+    // Dane służbowe (Employee) — tylko gdy brak; imię = pierwsze słowo nazwy.
+    const [firstName, ...rest] = account.name.split(" ");
+    await db.employee.upsert({
+      where: { userId },
+      update: {},
+      create: {
+        userId,
+        firstName: firstName ?? account.name,
+        lastName: rest.join(" ") || "—",
+        position: account.position,
+      },
+    });
     // Role dopisywane tylko, gdy brakuje — seed można uruchamiać wielokrotnie.
     for (const { role, siteId = null } of account.roles) {
       const has = await db.roleAssignment.findFirst({

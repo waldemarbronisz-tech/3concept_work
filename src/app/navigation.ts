@@ -1,14 +1,3 @@
-import {
-  Building2,
-  Clock,
-  HardHat,
-  Inbox,
-  type LucideIcon,
-  Menu,
-  Package,
-  Settings,
-  Users,
-} from "lucide-react";
 import type { Role } from "@/core/rbac";
 
 export type { Role };
@@ -19,10 +8,14 @@ export type { Role };
  */
 export type NavProfile = "worker" | "foreman" | "engineer" | "management";
 
+/** Klucz ikony — komponenty Lucide mapuje po stronie klienta `components/app/nav-icons.ts`. */
+export type NavIcon =
+  "inbox" | "clock" | "package" | "users" | "hard-hat" | "building" | "menu" | "settings";
+
 export interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: NavIcon;
 }
 
 export const NAV_PROFILE_LABEL: Record<NavProfile, string> = {
@@ -34,14 +27,14 @@ export const NAV_PROFILE_LABEL: Record<NavProfile, string> = {
 
 // Trasy powstaną w kolejnych iteracjach; adresy są już docelowe.
 const ITEM = {
-  queue: { href: "/kolejka", label: "Kolejka", icon: Inbox },
-  time: { href: "/czas", label: "Czas", icon: Clock },
-  packages: { href: "/pakiety", label: "Pakiety", icon: Package },
-  crew: { href: "/ekipa", label: "Ekipa", icon: Users },
-  site: { href: "/budowa", label: "Budowa", icon: HardHat },
-  sites: { href: "/budowy", label: "Budowy", icon: Building2 },
-  menu: { href: "/menu", label: "Menu", icon: Menu },
-  admin: { href: "/admin", label: "Administracja", icon: Settings },
+  queue: { href: "/kolejka", label: "Kolejka", icon: "inbox" },
+  time: { href: "/czas", label: "Czas", icon: "clock" },
+  packages: { href: "/pakiety", label: "Pakiety", icon: "package" },
+  crew: { href: "/ekipa", label: "Ekipa", icon: "users" },
+  site: { href: "/budowa", label: "Budowa", icon: "hard-hat" },
+  sites: { href: "/budowy", label: "Budowy", icon: "building" },
+  menu: { href: "/menu", label: "Menu", icon: "menu" },
+  admin: { href: "/admin", label: "Administracja", icon: "settings" },
 } satisfies Record<string, NavItem>;
 
 export const BOTTOM_NAV: Record<NavProfile, NavItem[]> = {
