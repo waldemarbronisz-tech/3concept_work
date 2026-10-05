@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ROLES } from "./roles";
 
 // Integracyjne (pomijane bez DATABASE_URL_TEST): role z bazy, zgodność enumów, reset wg ról.
@@ -15,6 +15,7 @@ const mods = url
 
 describe.skipIf(!mods)("role w bazie", () => {
   const prefix = `r${Date.now().toString(36)}`;
+  beforeAll(async () => (await import("@/test/sites")).ensureSites("site-a", "site-b"));
   afterAll(() => mods!.db.$disconnect());
 
   it("enum Role w Prismie = ROLES w core/rbac", () => {

@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AUDIT_ACTIONS } from "./record";
 
 // Integracyjne (pomijane bez DATABASE_URL_TEST): wpisy audytu z operacji na kontach i rolach.
@@ -22,6 +22,7 @@ describe("kategorie akcji", () => {
 
 describe.skipIf(!mods)("audit log", () => {
   const prefix = `a${Date.now().toString(36)}`;
+  beforeAll(async () => (await import("@/test/sites")).ensureSites("site-a"));
   afterAll(() => mods!.db.$disconnect());
 
   const entriesFor = (userId: string) =>
