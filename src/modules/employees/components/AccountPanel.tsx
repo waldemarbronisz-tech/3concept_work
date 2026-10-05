@@ -29,9 +29,36 @@ export interface RoleItem {
   siteId: string | null;
 }
 
+export interface RolesPanelProps {
+  id: string;
+  roles: RoleItem[];
+  /** Własne konto — ról nie zmienia się samemu (przypis ⁵). */
+  isSelf: boolean;
+  /** Aktor ma ADMIN + MANAGEMENT — tylko on nadaje/odbiera MANAGEMENT. */
+  canManageManagement: boolean;
+}
+
 /** Role pracownika: lista z odebraniem i nadanie roli globalnej / WORKER (budowy od it. 8). */
-export function RolesPanel({ id, roles }: { id: string; roles: RoleItem[] }) {
+export function RolesPanel({ id, roles, isSelf, canManageManagement }: RolesPanelProps) {
   const [state, grant, pending] = useActionState(grantRoleAction.bind(null, id), {});
+  const grantable = GRANTABLE_ROLES.filter((r) => r !== "MANAGEMENT" || canManageManagement);
+
+  if (isSelf) {
+    return (
+      <section className="flex flex-col gap-3">
+        <SectionLabel>Role</SectionLabel>
+        <ul className="flex flex-wrap gap-2">
+          {roles.map((r) => (
+            <li key={r.id}>
+              <Tag>{`${ROLE_SHORT[r.role] ?? r.role}${r.siteId ? ` @${r.siteId}` : ""}`}</Tag>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[12.5px] text-ink-2">Własnych ról nie zmienia się samemu.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-3">
       <SectionLabel>Role</SectionLabel>
@@ -43,11 +70,13 @@ export function RolesPanel({ id, roles }: { id: string; roles: RoleItem[] }) {
             className="flex items-center justify-between gap-3 border-[1.5px] border-line px-3 py-2"
           >
             <Tag>{`${ROLE_SHORT[r.role] ?? r.role}${r.siteId ? ` @${r.siteId}` : ""}`}</Tag>
-            <form action={revokeRoleAction.bind(null, id, r.id)}>
-              <Button type="submit" className="px-3 text-[13.5px]">
-                Odbierz
-              </Button>
-            </form>
+            {(r.role !== "MANAGEMENT" || canManageManagement) && (
+              <form action={revokeRoleAction.bind(null, id, r.id)}>
+                <Button type="submit" className="px-3 text-[13.5px]">
+                  Odbierz
+                </Button>
+              </form>
+            )}
           </li>
         ))}
       </ul>
@@ -64,7 +93,7 @@ export function RolesPanel({ id, roles }: { id: string; roles: RoleItem[] }) {
             name="role"
             className="min-h-12 border-[1.5px] border-line bg-surface px-3 text-base text-ink"
           >
-            {GRANTABLE_ROLES.map((role) => (
+            {grantable.map((role) => (
               <option key={role} value={role}>
                 {ROLE_SHORT[role]}
               </option>
@@ -83,13 +112,29 @@ export function RolesPanel({ id, roles }: { id: string; roles: RoleItem[] }) {
   );
 }
 
+export interface AccountPanelProps {
+  id: string;
+  isActive: boolean;
+  /** Powód, dla którego akcje są ukryte (własne konto, konto zarządu bez MANAGEMENT). */
+  lockedReason?: string;
+}
+
 /** Blokada / odblokowanie konta i reset hasła (hasło tymczasowe pokazane raz). */
-export function AccountPanel({ id, isActive }: { id: string; isActive: boolean }) {
+export function AccountPanel({ id, isActive, lockedReason }: AccountPanelProps) {
   const [blockState, block, blocking] = useActionState(
     (isActive ? blockEmployeeAction : unblockEmployeeAction).bind(null, id),
     {},
   );
   const [resetState, reset, resetting] = useActionState(() => resetPasswordAction(id), {});
+
+  if (lockedReason) {
+    return (
+      <section className="flex flex-col gap-2">
+        <SectionLabel>Konto</SectionLabel>
+        <p className="text-[12.5px] text-ink-2">{lockedReason}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col gap-5">

@@ -28,7 +28,8 @@ const ACCOUNTS: Array<{
     position: "zarząd",
     name: "Zarząd 3Concept",
     temporaryPassword: "tymczasowe1",
-    roles: [{ role: "MANAGEMENT" }],
+    // Bootstrap: zarząd z ADMIN — tylko taki aktor może nadawać MANAGEMENT (przypis ⁵).
+    roles: [{ role: "MANAGEMENT" }, { role: "ADMIN" }],
   },
   // Budowa „075” jest na razie tylko identyfikatorem (tabela Site dojdzie w iteracji 8).
   {

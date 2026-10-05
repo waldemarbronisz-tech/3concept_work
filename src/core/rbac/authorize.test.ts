@@ -137,9 +137,13 @@ describe("authorize", () => {
 describe("canResetPassword (przypis ¹ macierzy)", () => {
   const target = (roles: Role[], siteIds: string[]) => ({ userId: "t", roles, siteIds });
 
-  it("admin resetuje każdemu, także innemu adminowi i zarządowi", () => {
+  it("admin resetuje każdemu poza zarządem; zarządowi tylko ADMIN+MANAGEMENT", () => {
     expect(canResetPassword(admin, target(["ADMIN"], []))).toBe(true);
-    expect(canResetPassword(admin, target(["MANAGEMENT"], []))).toBe(true);
+    expect(canResetPassword(admin, target(["MANAGEMENT"], []))).toBe(false);
+    expect(
+      canResetPassword(actor(["ADMIN", null], ["MANAGEMENT", null]), target(["MANAGEMENT"], [])),
+    ).toBe(true);
+    expect(canResetPassword(management, target(["MANAGEMENT"], []))).toBe(false);
     expect(canResetPassword(admin, target(["WORKER"], ["Z"]))).toBe(true);
   });
 

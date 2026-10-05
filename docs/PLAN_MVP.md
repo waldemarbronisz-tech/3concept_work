@@ -211,6 +211,16 @@ korygują po zatwierdzeniu z powodem (`time.manage`). **Nikt nie zatwierdza wła
 wpisów** — godziny brygadzisty zatwierdza inżynier lub kierownik tej budowy (it. 14).
 Wpisywania godzin za innego pracownika celowo nie ma — patrz D5.
 
+⁵ **Przeciw eskalacji uprawnień** (serwis, nie UI — UI tylko ukrywa przyciski
+przez `can()`): nikt nie zmienia własnych ról ani nie blokuje własnego konta;
+rolę `MANAGEMENT` nadaje i odbiera tylko aktor mający jednocześnie `ADMIN` i
+`MANAGEMENT`; konta z `MANAGEMENT` blokuje, odblokowuje i resetuje tylko aktor
+z `MANAGEMENT` (+ `accounts.manage`); ostatniego aktywnego użytkownika z aktywną
+rolą `ADMIN` nie da się pozbawić tej roli ani zablokować (sprawdzenie w tej samej
+transakcji). Bootstrap: seed daje kontu `zarzad` MANAGEMENT + ADMIN, a przy
+pierwszym wdrożeniu `npm run account:bootstrap -- --login <login>` nadaje obie
+role z wpisem audytu z aktorem `system`.
+
 Zatwierdzanie godzin zależy od D5; akceptacje firmowe dostaną konkretne
 progi razem z modułami (zamówienia, delegacje) — tu nie są ustalane.
 

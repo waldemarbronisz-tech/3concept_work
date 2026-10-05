@@ -12,4 +12,11 @@ export type { Permission, Scope } from "./permissions";
 export { GLOBAL_ROLES, ROLES } from "./roles";
 export type { Role, RoleGrant } from "./roles";
 export { SYSTEM_ACTOR } from "./system";
-export { grantRole, revokeRole } from "./assignments";
+export { countOtherActiveAdmins, grantRole, revokeRole } from "./assignments";
+export {
+  assertNotLastAdmin,
+  assertNotSelf,
+  canManageManagementAccount,
+  canManageManagementRole,
+  hasRole,
+} from "./guards";

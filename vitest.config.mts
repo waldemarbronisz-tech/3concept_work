@@ -13,6 +13,8 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts"],
     passWithNoTests: true,
+    // Testy bazodanowe współdzielą jedną bazę — pliki po kolei, nie równolegle.
+    fileParallelism: !testDatabaseUrl,
     env: { DATABASE_URL: testDatabaseUrl },
     globalSetup: testDatabaseUrl ? ["vitest.global-setup.mts"] : [],
   },

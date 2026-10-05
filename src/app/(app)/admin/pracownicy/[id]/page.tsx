@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AppBar } from "@/components/ui/AppBar";
 import { Status } from "@/components/ui/Status";
 import { requireActor } from "@/core/auth/actor";
-import { can } from "@/core/rbac";
+import { can, canManageManagementAccount, canManageManagementRole } from "@/core/rbac";
 import { AccountPanel, RolesPanel } from "@/modules/employees/components/AccountPanel";
 import { EditEmployeeForm } from "@/modules/employees/components/EmployeeForm";
 import { accountStatus } from "@/modules/employees/components/EmployeeList";
@@ -19,6 +19,13 @@ export default async function EmployeePage({ params }: PageProps<"/admin/pracown
   const employee = await getEmployee(actor, id);
   if (!employee) notFound();
   const status = accountStatus(employee);
+  const isSelf = employee.user.id === actor.userId;
+  const isManagement = employee.user.roleAssignments.some((r) => r.role === "MANAGEMENT");
+  const lockedReason = isSelf
+    ? "Własnego konta nie blokuje się ani nie resetuje samemu — poproś innego administratora."
+    : isManagement && !canManageManagementAccount(actor)
+      ? "Kontem zarządu zarządza tylko administrator z rolą zarządu."
+      : undefined;
 
   return (
     <>
@@ -42,8 +49,17 @@ export default async function EmployeePage({ params }: PageProps<"/admin/pracown
             employmentStatus: employee.employmentStatus,
           }}
         />
-        <RolesPanel id={employee.id} roles={employee.user.roleAssignments} />
-        <AccountPanel id={employee.id} isActive={employee.user.isActive} />
+        <RolesPanel
+          id={employee.id}
+          roles={employee.user.roleAssignments}
+          isSelf={isSelf}
+          canManageManagement={canManageManagementRole(actor)}
+        />
+        <AccountPanel
+          id={employee.id}
+          isActive={employee.user.isActive}
+          lockedReason={lockedReason}
+        />
       </main>
     </>
   );
