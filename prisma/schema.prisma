@@ -107,8 +107,9 @@ model RoleAssignment {
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   role      Role
-  /// Budowa jako zakres; null = globalnie (tylko MANAGEMENT i ADMIN). Relacja do Site dojdzie w iteracji 8.
+  /// Budowa jako zakres = numer budowy (klucz biznesowy, §41); null = globalnie (tylko MANAGEMENT i ADMIN).
   siteId    String?
+  site      Site?     @relation(fields: [siteId], references: [siteNumber], onDelete: Restrict)
   validFrom DateTime  @default(now()) @db.Timestamptz
   validTo   DateTime? @db.Timestamptz
   createdAt DateTime  @default(now()) @db.Timestamptz
@@ -166,7 +167,52 @@ model Employee {
   deletedAt        DateTime?        @db.Timestamptz
   createdAt        DateTime         @default(now()) @db.Timestamptz
   updatedAt        DateTime         @updatedAt @db.Timestamptz
+  siteAssignments  SiteAssignment[]
 
   @@index([lastName, firstName])
   @@map("employee")
+}
+
+enum SiteStatus {
+  PLANNED
+  ACTIVE
+  CLOSED
+}
+
+/// Budowa = kontrakt (D4). `siteNumber` to istniejący numer budowy 3Concept (§41), klucz w URL-ach.
+model Site {
+  id               String           @id @default(cuid())
+  siteNumber       String           @unique
+  name             String
+  client           String
+  location         String
+  status           SiteStatus       @default(PLANNED)
+  startDate        DateTime?        @db.Date
+  endDate          DateTime?        @db.Date
+  /// Budżet robocizny w rbh (koszty — tylko role z `costs.*`).
+  laborBudgetHours Decimal?         @db.Decimal(10, 2)
+  notes            String?
+  deletedAt        DateTime?        @db.Timestamptz
+  createdAt        DateTime         @default(now()) @db.Timestamptz
+  updatedAt        DateTime         @updatedAt @db.Timestamptz
+  roleAssignments  RoleAssignment[]
+  team             SiteAssignment[]
+
+  @@map("site")
+}
+
+/// Kto fizycznie jest w zespole budowy, z historią (§36.1). Rola mówi, co ktoś może; to — gdzie pracuje.
+model SiteAssignment {
+  id         String    @id @default(cuid())
+  siteId     String
+  site       Site      @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  validFrom  DateTime  @default(now()) @db.Timestamptz
+  validTo    DateTime? @db.Timestamptz
+  createdAt  DateTime  @default(now()) @db.Timestamptz
+
+  @@index([siteId, validTo])
+  @@index([employeeId, validTo])
+  @@map("site_assignment")
 }

@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/core/db";
-import { loadGrants } from "@/core/rbac/grants";
+import { loadGrants, loadMemberSiteIds } from "@/core/rbac/grants";
 import { roles, type AuthorizationActor, type Role, type RoleGrant } from "@/core/rbac";
 import { auth } from "./auth";
 
@@ -37,7 +37,10 @@ export async function resolveActorById(userId: string): Promise<ActorResolution>
   if (!user) return { kind: "anonymous" };
   if (!user.isActive) return { kind: "blocked" };
 
-  const grants = await loadGrants(user.id);
+  const [grants, memberSiteIds] = await Promise.all([
+    loadGrants(user.id),
+    loadMemberSiteIds(user.id),
+  ]);
   const { id, name, username, mustChangePassword } = user;
   return {
     kind: "ok",
@@ -45,6 +48,7 @@ export async function resolveActorById(userId: string): Promise<ActorResolution>
       userId: id,
       user: { id, name, username, mustChangePassword },
       grants,
+      memberSiteIds,
       roles: roles({ userId: id, grants }),
     },
   };

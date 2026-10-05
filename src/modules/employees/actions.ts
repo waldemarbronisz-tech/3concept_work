@@ -9,7 +9,6 @@ import {
   employeeDataSchema,
   firstIssue,
   formToObject,
-  GRANTABLE_ROLES,
   grantRoleSchema,
   reasonSchema,
 } from "./schemas";
@@ -40,10 +39,11 @@ export async function createEmployeeAction(
   const parsed = createEmployeeSchema.safeParse(formToObject(formData));
   if (!parsed.success) return { error: firstIssue(parsed.error) };
 
+  // Przy zakładaniu konta tylko role bez budowy; role budowy nadaje się w szczegółach pracownika.
   const roles = formData
     .getAll("roles")
-    .filter((r): r is (typeof GRANTABLE_ROLES)[number] =>
-      GRANTABLE_ROLES.includes(r as (typeof GRANTABLE_ROLES)[number]),
+    .filter((r): r is "WORKER" | "MANAGEMENT" | "ADMIN" =>
+      ["WORKER", "MANAGEMENT", "ADMIN"].includes(String(r)),
     );
 
   try {
@@ -86,9 +86,10 @@ export async function grantRoleAction(
   const parsed = grantRoleSchema.safeParse(formToObject(formData));
   if (!parsed.success) return { error: firstIssue(parsed.error) };
   try {
-    await service.grantEmployeeRole(actor, id, parsed.data.role as Role);
+    await service.grantEmployeeRole(actor, id, parsed.data.role as Role, parsed.data.siteNumber);
     revalidatePath(`${PATH}/${id}`);
-    return { ok: `Nadano rolę ${parsed.data.role}.` };
+    const where = parsed.data.siteNumber ? ` na budowie ${parsed.data.siteNumber}` : "";
+    return { ok: `Nadano rolę ${parsed.data.role}${where}.` };
   } catch (error) {
     return { error: describe(error) };
   }

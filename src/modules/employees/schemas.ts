@@ -36,12 +36,33 @@ export const createEmployeeSchema = employeeDataSchema.extend({
     }),
 });
 
-/** Role nadawane z ekranu admina do iteracji 8: tylko globalne i WORKER (role budowy wymagają budowy). */
-export const GRANTABLE_ROLES = ["WORKER", "MANAGEMENT", "ADMIN"] as const;
+/** Role nadawane z ekranu admina. Role budowy wymagają numeru budowy (CHECK w bazie). */
+export const GRANTABLE_ROLES = [
+  "WORKER",
+  "FOREMAN",
+  "SITE_ENGINEER",
+  "CONTRACT_MANAGER",
+  "MANAGEMENT",
+  "ADMIN",
+] as const;
+export const SITE_ROLES = ["FOREMAN", "SITE_ENGINEER", "CONTRACT_MANAGER"] as const;
+const isSiteRole = (role: string) => (SITE_ROLES as readonly string[]).includes(role);
 
-export const grantRoleSchema = z.object({
-  role: z.enum(GRANTABLE_ROLES),
-});
+export const grantRoleSchema = z
+  .object({
+    role: z.enum(GRANTABLE_ROLES),
+    siteNumber: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v ? v : undefined)),
+  })
+  .refine((v) => !isSiteRole(v.role) || v.siteNumber, {
+    message: "Ta rola wymaga wskazania budowy.",
+  })
+  .refine((v) => isSiteRole(v.role) || !v.siteNumber, {
+    message: "Ta rola jest globalna, bez budowy.",
+  });
 
 export const reasonSchema = z.object({
   reason: z.string().trim().max(200).optional(),

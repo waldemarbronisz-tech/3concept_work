@@ -62,6 +62,30 @@ const ACCOUNTS: Array<{
   },
 ];
 
+/** Budowy fikcyjne; „075” jest też zakresem ról demo. */
+const SITES = [
+  {
+    siteNumber: "075",
+    name: "SE Olszyna 110/15 kV",
+    client: "Energa-Operator (fikcyjny)",
+    location: "Olszyna, woj. lubuskie",
+    status: "ACTIVE" as const,
+    startDate: new Date("2026-09-01"),
+    laborBudgetHours: "3510.00",
+    team: ["brygadzista", "jkowalski", "inzynier"],
+  },
+  {
+    siteNumber: "076",
+    name: "GPZ Wschód — rozdzielnia 15 kV",
+    client: "Zakład Energetyczny (fikcyjny)",
+    location: "Zielona Góra",
+    status: "PLANNED" as const,
+    startDate: new Date("2026-11-02"),
+    laborBudgetHours: null,
+    team: [] as string[],
+  },
+];
+
 async function main() {
   for (const { key, value } of SETTINGS) {
     await db.appSetting.upsert({ where: { key }, update: { value }, create: { key, value } });
@@ -101,6 +125,33 @@ async function main() {
       }
     }
   }
+
+  for (const { team, ...site } of SITES) {
+    const row = await db.site.upsert({
+      where: { siteNumber: site.siteNumber },
+      update: {
+        name: site.name,
+        client: site.client,
+        location: site.location,
+        status: site.status,
+        startDate: site.startDate,
+        laborBudgetHours: site.laborBudgetHours,
+      },
+      create: site,
+    });
+    for (const username of team) {
+      const employee = await db.employee.findFirst({ where: { user: { username } } });
+      if (!employee) continue;
+      const member = await db.siteAssignment.findFirst({
+        where: { siteId: row.id, employeeId: employee.id, validTo: null },
+      });
+      if (!member) {
+        await db.siteAssignment.create({ data: { siteId: row.id, employeeId: employee.id } });
+        console.log(`Seed: zespół ${site.siteNumber} ← ${username}`);
+      }
+    }
+  }
+  console.log(`Seed: ${SITES.length} budowy.`);
 }
 
 main()

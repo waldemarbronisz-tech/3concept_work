@@ -124,9 +124,14 @@ async function userIdOf(id: string) {
   return employee.userId;
 }
 
-/** Role z ekranu admina: do iteracji 8 tylko globalne i WORKER (bez budowy). */
-export async function grantEmployeeRole(actor: AuthorizationActor, id: string, role: Role) {
-  return grantRole(actor, { userId: await userIdOf(id), role });
+/** Role z ekranu admina; role budowy z numerem budowy (zakres), globalne bez. */
+export async function grantEmployeeRole(
+  actor: AuthorizationActor,
+  id: string,
+  role: Role,
+  siteId?: string | null,
+) {
+  return grantRole(actor, { userId: await userIdOf(id), role, siteId: siteId ?? null });
 }
 
 export async function revokeEmployeeRole(

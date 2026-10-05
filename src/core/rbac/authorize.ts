@@ -5,6 +5,8 @@ import type { Role, RoleGrant } from "./roles";
 export interface AuthorizationActor {
   userId: string;
   grants: readonly RoleGrant[];
+  /** Numery budów, w których zespole jest aktor (SiteAssignment) — zakres `member`. */
+  memberSiteIds?: readonly string[];
 }
 
 /** Na czym ma być wykonana operacja. */
@@ -37,6 +39,8 @@ export function can(
         return true;
       case "site":
         return grant.siteId !== null && scope.siteId != null && grant.siteId === scope.siteId;
+      case "member":
+        return scope.siteId != null && (actor.memberSiteIds ?? []).includes(scope.siteId);
       case "own":
         return scope.ownerUserId != null && scope.ownerUserId === actor.userId;
       default:
