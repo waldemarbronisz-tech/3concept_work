@@ -11,8 +11,25 @@ export async function loadGrants(userId: string, now = new Date()): Promise<Role
   return rows.map((r) => ({ role: r.role, siteId: r.siteId }));
 }
 
-/** Budowy, z którymi użytkownik jest związany rolą (zespół budowy — SiteAssignment — dojdzie w iteracji 8). */
+/** Numery budów, w których zespole jest użytkownik (aktywne SiteAssignment jego pracownika). */
+export async function loadMemberSiteIds(userId: string, now = new Date()): Promise<string[]> {
+  const rows = await db.siteAssignment.findMany({
+    where: {
+      employee: { userId, deletedAt: null },
+      validFrom: { lte: now },
+      OR: [{ validTo: null }, { validTo: { gt: now } }],
+      site: { deletedAt: null },
+    },
+    select: { site: { select: { siteNumber: true } } },
+  });
+  return [...new Set(rows.map((r) => r.site.siteNumber))];
+}
+
+/** Budowy, z którymi użytkownik jest związany: rolą na budowie albo członkostwem w zespole. */
 export async function loadUserSiteIds(userId: string, now = new Date()): Promise<string[]> {
-  const grants = await loadGrants(userId, now);
-  return [...new Set(grants.flatMap((g) => (g.siteId ? [g.siteId] : [])))];
+  const [grants, member] = await Promise.all([
+    loadGrants(userId, now),
+    loadMemberSiteIds(userId, now),
+  ]);
+  return [...new Set([...grants.flatMap((g) => (g.siteId ? [g.siteId] : [])), ...member])];
 }

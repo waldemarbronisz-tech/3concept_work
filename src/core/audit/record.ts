@@ -18,6 +18,11 @@ export const AUDIT_ACTIONS = {
   "role.revoke": "SYSTEM",
   "employee.create": "SYSTEM",
   "employee.update": "SYSTEM",
+  "site.create": "OPERATIONAL",
+  "site.update": "OPERATIONAL",
+  "site.updateBudget": "FINANCIAL",
+  "team.add": "OPERATIONAL",
+  "team.remove": "OPERATIONAL",
 } as const satisfies Record<string, AuditCategory>;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

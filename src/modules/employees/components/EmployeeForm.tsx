@@ -13,9 +13,9 @@ import {
   updateEmployeeAction,
   type EmployeeActionState,
 } from "../actions";
-import { GRANTABLE_ROLES } from "../schemas";
 
-const ROLE_OPTIONS: Record<(typeof GRANTABLE_ROLES)[number], { label: string; hint: string }> = {
+const INITIAL_ROLES = ["WORKER", "MANAGEMENT", "ADMIN"] as const;
+const ROLE_OPTIONS: Record<(typeof INITIAL_ROLES)[number], { label: string; hint: string }> = {
   WORKER: { label: "Pracownik", hint: "własne godziny i pakiety" },
   MANAGEMENT: { label: "Zarząd", hint: "odczyt wszystkiego, akceptacje firmowe" },
   ADMIN: { label: "Administrator", hint: "konta, role, słowniki — bez kosztów" },
@@ -142,10 +142,10 @@ export function CreateEmployeeForm() {
       />
       <fieldset>
         <legend className="contents">
-          <SectionLabel>Role od razu · budowy od iteracji 8</SectionLabel>
+          <SectionLabel>Role od razu · role budowy nadasz w szczegółach</SectionLabel>
         </legend>
         <div className="flex flex-col gap-2">
-          {GRANTABLE_ROLES.map((role) => (
+          {INITIAL_ROLES.map((role) => (
             <label
               key={role}
               className="flex min-h-14 cursor-pointer items-center gap-3 border-[1.5px] border-line px-3 py-2 has-[input:checked]:border-primary has-[input:checked]:bg-primary-soft"

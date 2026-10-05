@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 // Testy integracyjne na bazie testowej (pomijane bez DATABASE_URL_TEST).
 const url = process.env.DATABASE_URL;
@@ -18,9 +18,6 @@ describe.skipIf(!mods)("konta i logowanie", () => {
   const prefix = `t${Date.now().toString(36)}`;
   const username = `${prefix}.anowak`;
 
-  beforeAll(async () => {
-    await mods!.db.user.deleteMany({ where: { username: { startsWith: "t" } } });
-  });
   afterAll(() => mods!.db.$disconnect());
 
   it("generuje czytelne hasło tymczasowe", () => {

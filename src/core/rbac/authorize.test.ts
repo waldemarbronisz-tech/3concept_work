@@ -94,11 +94,15 @@ describe("macierz uprawnień (PLAN_MVP §3)", () => {
     expect(can(worker, "time.approve", { siteId: "A" })).toBe(false);
   });
 
-  it("pracownik: tylko własne wpisy czasu i podstawowe dane pakietów", () => {
+  it("pracownik: własne wpisy czasu; pakiety i budowy tylko tam, gdzie jest w zespole (member)", () => {
+    const member = { ...worker, memberSiteIds: ["A"] };
     expect(can(worker, "time.write", { ownerUserId: "u1" })).toBe(true);
     expect(can(worker, "time.write", { ownerUserId: "u2" })).toBe(false);
-    expect(can(worker, "packages.readBasic", { ownerUserId: "u1" })).toBe(true);
-    expect(can(worker, "packages.read", { siteId: "A" })).toBe(false);
+    expect(can(member, "packages.readBasic", { siteId: "A" })).toBe(true);
+    expect(can(member, "packages.readBasic", { siteId: "B" })).toBe(false);
+    expect(can(worker, "packages.readBasic", { siteId: "A" })).toBe(false); // bez zespołu
+    expect(can(member, "sites.read", { siteId: "A" })).toBe(true);
+    expect(can(member, "packages.read", { siteId: "A" })).toBe(false);
     expect(can(worker, "costs.read")).toBe(false);
   });
 

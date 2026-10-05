@@ -13,8 +13,6 @@ const SECTIONS: Record<string, { title: string; milestone: string; what: string 
   czas: { title: "Czas", milestone: "M3", what: "wpis godzin, dzień ekipy, zatwierdzanie" },
   pakiety: { title: "Pakiety", milestone: "M2", what: "pakiety robocze, stany, blokady" },
   ekipa: { title: "Ekipa", milestone: "M1", what: "zespół budowy i jego godziny" },
-  budowa: { title: "Budowa", milestone: "M1", what: "Twoja budowa: etapy, pakiety, pulpit" },
-  budowy: { title: "Budowy", milestone: "M1", what: "wszystkie budowy i kontrakty" },
   menu: { title: "Menu", milestone: "M0", what: "ustawienia konta i pozostałe sekcje" },
 };
 

@@ -5,6 +5,7 @@ import type { Role } from "./roles";
  * Uprawnienie = obszar.czynność. Zakres mówi, gdzie rola je ma:
  * - `global` — wszędzie,
  * - `site`   — tylko na budowach z `RoleAssignment.siteId`,
+ * - `member` — tylko na budowach, w których zespole jest aktor (SiteAssignment),
  * - `own`    — tylko na własnych danych (userId aktora).
  */
 export type Permission =
@@ -16,6 +17,7 @@ export type Permission =
   | "dictionaries.manage"
   // budowy / kontrakty
   | "sites.list" // tylko numer i nazwa (admin: do przypisań ról)
+  | "sites.create" // założenie budowy (dane podstawowe, bez budżetu)
   | "sites.read"
   | "sites.manage"
   // pakiety, etapy, blokady
@@ -41,7 +43,7 @@ export type Permission =
   | "audit.readSystem"
   | "audit.readRecord";
 
-export type Scope = "global" | "site" | "own";
+export type Scope = "global" | "site" | "member" | "own";
 
 export const PERMISSIONS: Record<Role, Partial<Record<Permission, Scope>>> = {
   MANAGEMENT: {
@@ -62,6 +64,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<Permission, Scope>>> = {
     "dictionaries.read": "global",
     "dictionaries.manage": "global",
     "sites.list": "global",
+    "sites.create": "global",
     "audit.readSystem": "global",
   },
   CONTRACT_MANAGER: {
@@ -107,8 +110,9 @@ export const PERMISSIONS: Record<Role, Partial<Record<Permission, Scope>>> = {
     "time.approve": "site", // zatwierdza dzień ekipy na swojej budowie
   },
   WORKER: {
-    // Zakres „swoje budowy” dojdzie z SiteAssignment (iteracja 8); do tego czasu `own`.
-    "packages.readBasic": "own",
+    // „Swoje budowy” = zespół budowy (SiteAssignment), nie rola.
+    "sites.read": "member",
+    "packages.readBasic": "member",
     "time.write": "own",
   },
 };

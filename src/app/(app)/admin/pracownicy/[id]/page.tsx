@@ -8,6 +8,7 @@ import { AccountPanel, RolesPanel } from "@/modules/employees/components/Account
 import { EditEmployeeForm } from "@/modules/employees/components/EmployeeForm";
 import { accountStatus } from "@/modules/employees/components/EmployeeList";
 import { getEmployee } from "@/modules/employees/service";
+import { listSiteOptions } from "@/modules/sites/service";
 
 export const metadata: Metadata = { title: "Pracownik · 3Concept Work" };
 
@@ -16,7 +17,7 @@ export default async function EmployeePage({ params }: PageProps<"/admin/pracown
   if (!can(actor, "accounts.manage")) notFound();
 
   const { id } = await params;
-  const employee = await getEmployee(actor, id);
+  const [employee, sites] = await Promise.all([getEmployee(actor, id), listSiteOptions(actor)]);
   if (!employee) notFound();
   const status = accountStatus(employee);
   const isSelf = employee.user.id === actor.userId;
@@ -52,6 +53,7 @@ export default async function EmployeePage({ params }: PageProps<"/admin/pracown
         <RolesPanel
           id={employee.id}
           roles={employee.user.roleAssignments}
+          sites={sites}
           isSelf={isSelf}
           canManageManagement={canManageManagementRole(actor)}
         />

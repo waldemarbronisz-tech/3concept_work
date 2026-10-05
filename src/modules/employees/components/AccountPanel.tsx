@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { SectionLabel } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/Button";
 import { Status } from "@/components/ui/Status";
@@ -14,7 +14,7 @@ import {
   unblockEmployeeAction,
   type EmployeeActionState,
 } from "../actions";
-import { GRANTABLE_ROLES } from "../schemas";
+import { GRANTABLE_ROLES, SITE_ROLES } from "../schemas";
 import { ROLE_SHORT } from "./EmployeeList";
 
 function Feedback({ state }: { state: EmployeeActionState }) {
@@ -29,9 +29,16 @@ export interface RoleItem {
   siteId: string | null;
 }
 
+export interface SiteOption {
+  siteNumber: string;
+  name: string;
+}
+
 export interface RolesPanelProps {
   id: string;
   roles: RoleItem[];
+  /** Budowy do wyboru przy rolach budowy (`sites.list`). */
+  sites: SiteOption[];
   /** Własne konto — ról nie zmienia się samemu (przypis ⁵). */
   isSelf: boolean;
   /** Aktor ma ADMIN + MANAGEMENT — tylko on nadaje/odbiera MANAGEMENT. */
@@ -39,9 +46,11 @@ export interface RolesPanelProps {
 }
 
 /** Role pracownika: lista z odebraniem i nadanie roli globalnej / WORKER (budowy od it. 8). */
-export function RolesPanel({ id, roles, isSelf, canManageManagement }: RolesPanelProps) {
+export function RolesPanel({ id, roles, sites, isSelf, canManageManagement }: RolesPanelProps) {
   const [state, grant, pending] = useActionState(grantRoleAction.bind(null, id), {});
   const grantable = GRANTABLE_ROLES.filter((r) => r !== "MANAGEMENT" || canManageManagement);
+  const [role, setRole] = useState<(typeof GRANTABLE_ROLES)[number]>("WORKER");
+  const needsSite = (SITE_ROLES as readonly string[]).includes(role);
 
   if (isSelf) {
     return (
@@ -91,21 +100,47 @@ export function RolesPanel({ id, roles, isSelf, canManageManagement }: RolesPane
           <select
             id="role"
             name="role"
-            className="min-h-12 border-[1.5px] border-line bg-surface px-3 text-base text-ink"
+            value={role}
+            onChange={(e) => setRole(e.target.value as (typeof GRANTABLE_ROLES)[number])}
+            className="min-h-12 w-full min-w-0 border-[1.5px] border-line bg-surface px-3 text-base text-ink"
           >
-            {grantable.map((role) => (
-              <option key={role} value={role}>
-                {ROLE_SHORT[role]}
+            {grantable.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_SHORT[r]}
               </option>
             ))}
           </select>
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending || (needsSite && sites.length === 0)}>
             Nadaj
           </Button>
         </div>
-        <p className="text-[12.5px] text-ink-2">
-          Kierownik, inżynier i brygadzista wymagają wskazania budowy — dojdzie w iteracji 8.
-        </p>
+        {needsSite && (
+          <>
+            <label
+              htmlFor="siteNumber"
+              className="font-mono text-[11px] font-semibold tracking-[.1em] text-ink-2 uppercase"
+            >
+              Budowa
+            </label>
+            <select
+              id="siteNumber"
+              name="siteNumber"
+              required
+              className="min-h-12 w-full min-w-0 border-[1.5px] border-line bg-surface px-3 text-base text-ink"
+            >
+              {sites.map((s) => (
+                <option key={s.siteNumber} value={s.siteNumber}>
+                  {s.siteNumber} · {s.name}
+                </option>
+              ))}
+            </select>
+            {sites.length === 0 && (
+              <p className="text-[12.5px] text-ink-2">
+                Najpierw załóż budowę (Budowy, Nowa budowa).
+              </p>
+            )}
+          </>
+        )}
         <Feedback state={state} />
       </form>
     </section>
