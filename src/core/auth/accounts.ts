@@ -9,7 +9,13 @@ import {
   type AuthorizationActor,
   type Role,
 } from "@/core/rbac";
+import { countOtherActiveAdmins } from "@/core/rbac/assignments";
 import { loadGrants, loadUserSiteIds } from "@/core/rbac/grants";
+import {
+  assertCanTouchManagementAccount,
+  assertNotLastAdmin,
+  assertNotSelf,
+} from "@/core/rbac/guards";
 import { auth, USERNAME_PATTERN } from "./auth";
 
 /**
@@ -129,9 +135,14 @@ export async function deactivateAccount(
   reason?: string,
 ) {
   authorize(actor, "accounts.manage");
-  if (actor.userId === userId) throw new Error("Nie można zablokować własnego konta.");
+  assertNotSelf(actor, userId, "zablokować");
 
   await db.$transaction(async (tx) => {
+    const targetRoles = roles({ userId, grants: await loadGrants(userId) });
+    assertCanTouchManagementAccount(actor, targetRoles);
+    if (targetRoles.includes("ADMIN")) {
+      assertNotLastAdmin(await countOtherActiveAdmins(tx, userId), "zablokować konta");
+    }
     const before = await tx.user.update({ where: { id: userId }, data: { isActive: false } });
     const { count } = await tx.session.deleteMany({ where: { userId } });
     await audit.record(tx, actor, {
@@ -148,6 +159,7 @@ export async function deactivateAccount(
 /** Odblokowanie konta (bez przywracania sesji — użytkownik loguje się ponownie). */
 export async function activateAccount(actor: AuthorizationActor, userId: string, reason?: string) {
   authorize(actor, "accounts.manage");
+  assertCanTouchManagementAccount(actor, roles({ userId, grants: await loadGrants(userId) }));
   await db.$transaction(async (tx) => {
     await tx.user.update({ where: { id: userId }, data: { isActive: true } });
     await audit.record(tx, actor, {

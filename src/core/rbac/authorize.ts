@@ -75,6 +75,12 @@ export interface PasswordResetTarget {
  * osobom ze swoich budów, które nie mają żadnej roli uprzywilejowanej.
  */
 export function canResetPassword(actor: AuthorizationActor, target: PasswordResetTarget): boolean {
+  // Konto zarządu (przypis ⁵): tylko aktor z MANAGEMENT i globalnym resetem.
+  if (target.roles.includes("MANAGEMENT")) {
+    return (
+      can(actor, "accounts.resetPassword") && actor.grants.some((g) => g.role === "MANAGEMENT")
+    );
+  }
   if (can(actor, "accounts.resetPassword")) return true; // zakres globalny = ADMIN
 
   const managedSites = sitesWithRole(actor, "CONTRACT_MANAGER");

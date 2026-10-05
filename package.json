@@ -21,7 +21,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset --force && prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "account:bootstrap": "tsx --env-file=.env scripts/account-bootstrap.mts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
