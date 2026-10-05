@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppBar } from "@/components/ui/AppBar";
-import { BottomNav } from "@/components/ui/BottomNav";
 import { Button } from "@/components/ui/Button";
 import { Status } from "@/components/ui/Status";
-import { requireActor } from "@/core/auth/actor";
-import { navigationFor } from "../navigation";
 
 export const metadata: Metadata = { title: "Sekcja w przygotowaniu · 3Concept Work" };
 
@@ -19,7 +16,6 @@ const SECTIONS: Record<string, { title: string; milestone: string; what: string 
   budowa: { title: "Budowa", milestone: "M1", what: "Twoja budowa: etapy, pakiety, pulpit" },
   budowy: { title: "Budowy", milestone: "M1", what: "wszystkie budowy i kontrakty" },
   menu: { title: "Menu", milestone: "M0", what: "ustawienia konta i pozostałe sekcje" },
-  admin: { title: "Administracja", milestone: "M1", what: "konta, role, słowniki, katalog prac" },
 };
 
 export default async function SectionPlaceholder({ params }: PageProps<"/[...sekcja]">) {
@@ -27,12 +23,8 @@ export default async function SectionPlaceholder({ params }: PageProps<"/[...sek
   const section = SECTIONS[sekcja[0] ?? ""];
   if (!section || sekcja.length > 1) notFound();
 
-  const actor = await requireActor();
-  const nav = navigationFor(actor.roles);
-  const href = `/${sekcja[0]}`;
-
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-md flex-1 flex-col bg-surface sm:my-6 sm:min-h-0 sm:border-[1.5px] sm:border-ink">
+    <>
       <AppBar
         title={section.title}
         backHref="/"
@@ -48,7 +40,6 @@ export default async function SectionPlaceholder({ params }: PageProps<"/[...sek
           <Button>Wróć na pulpit</Button>
         </Link>
       </main>
-      {nav.profile !== "none" && <BottomNav items={nav.bottomNav} currentHref={href} />}
-    </div>
+    </>
   );
 }

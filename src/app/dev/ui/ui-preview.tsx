@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BOTTOM_NAV, NAV_PROFILE_LABEL, type NavProfile } from "@/app/navigation";
 import { AlarmBar } from "@/components/ui/AlarmBar";
 import { AppBar } from "@/components/ui/AppBar";
+import { toBottomNavItems } from "@/components/app/nav-icons";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Button } from "@/components/ui/Button";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
@@ -242,7 +243,7 @@ function PhoneTimeEntry({ profile }: { profile: NavProfile }) {
         </p>
       </div>
 
-      <BottomNav items={BOTTOM_NAV[profile]} currentHref="/czas" />
+      <BottomNav items={toBottomNavItems(BOTTOM_NAV[profile])} currentHref="/czas" />
     </div>
   );
 }

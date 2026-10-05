@@ -5,8 +5,9 @@ import { nextCookies } from "better-auth/next-js";
 import { username } from "better-auth/plugins";
 import { db } from "@/core/db";
 
-/** Login: 3–30 znaków, małe litery, cyfry, kropka, myślnik, podkreślenie. */
-export const USERNAME_PATTERN = /^[a-z0-9][a-z0-9._-]{2,29}$/;
+import { USERNAME_PATTERN } from "./username";
+
+export { USERNAME_PATTERN };
 
 /**
  * Better Auth: logowanie loginem i hasłem (D2), sesje w bazie, bez e-maili.

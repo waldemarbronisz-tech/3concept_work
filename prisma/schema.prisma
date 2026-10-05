@@ -36,6 +36,7 @@ model User {
   sessions           Session[]
   accounts           Account[]
   roleAssignments    RoleAssignment[]
+  employee           Employee?
 
   @@unique([email])
   @@unique([username])
@@ -144,4 +145,28 @@ model AuditLog {
   @@index([category, at])
   @@index([at])
   @@map("audit_log")
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+/// Dane służbowe osoby (PROJECT.md §16). Konto (`User`) to logowanie; pracownik zostaje
+/// w historii po odejściu (soft-delete `deletedAt`, status INACTIVE).
+model Employee {
+  id               String           @id @default(cuid())
+  userId           String           @unique
+  user             User             @relation(fields: [userId], references: [id])
+  firstName        String
+  lastName         String
+  position         String
+  employmentStatus EmploymentStatus @default(ACTIVE)
+  phone            String?
+  deletedAt        DateTime?        @db.Timestamptz
+  createdAt        DateTime         @default(now()) @db.Timestamptz
+  updatedAt        DateTime         @updatedAt @db.Timestamptz
+
+  @@index([lastName, firstName])
+  @@map("employee")
 }
